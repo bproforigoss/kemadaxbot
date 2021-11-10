@@ -10,7 +10,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func init() {
+func init {
 
 	log.SetOutput(os.Stdout)
 }
