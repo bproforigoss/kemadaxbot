@@ -52,7 +52,7 @@ func main() {
 		}
 	}
 	http.HandleFunc("/hello", helloHandler)
-	go err=http.ListenAndServe(":8080", nil)
+	go err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
