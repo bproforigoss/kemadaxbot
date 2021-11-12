@@ -52,7 +52,7 @@ func main() {
 		}
 	}
 	http.HandleFunc("/hello", helloHandler)
-	go http.ListenAndServe(":8080", nil)
+	go log.Panic(http.ListenAndServe(":8080", nil))
 
 	for update := range updates {
 		log.Printf("%+v\n", update)
