@@ -13,6 +13,7 @@ import (
 func init() {
 
 	log.SetOutput(os.Stdout)
+	
 }
 
 func main() {
