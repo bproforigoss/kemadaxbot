@@ -4,7 +4,7 @@ on: push
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${REGISTRY}/${{ github.repository }}:hello8080
+  IMAGE_NAME: ${REGISTRY}/${{ github.repository }}
 
 
 jobs:
