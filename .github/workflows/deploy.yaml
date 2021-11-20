@@ -1,0 +1,22 @@
+name: Deploy
+
+on: workflow_dispatch
+
+jobs:
+
+  deploy_to_kubernetes_cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }} 
+          
+      - name: Deploy to Cluster
+        run: |
+          export IMG=ghcr.io/bproforigoss/kemadaxbot:sha-adc59d9
+          envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
