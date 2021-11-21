@@ -1,6 +1,13 @@
 name: Deploy
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Docker image tag'     
+        required: true
+        default: 'sha-adc59d9'
+  
 
 jobs:
 
@@ -18,5 +25,5 @@ jobs:
           
       - name: Deploy to Cluster
         run: |
-          export IMG=ghcr.io/bproforigoss/kemadaxbot:sha-adc59d9
+          export IMG=ghcr.io/bproforigoss/kemadaxbot:${{ github.event.inputs.name }}
           envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
