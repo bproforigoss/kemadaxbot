@@ -73,6 +73,6 @@ jobs:
         with:
           image_name: ghcr.io/bproforigoss/kemadaxbot:sha-${GITHUB_SHA::7}
         secrets:
-          kubeconfig: ${{secrets.KUBE_CONFIG }} 
+          KUBE_CONFIG: ${{secrets.KUBE_CONFIG }} 
           
       

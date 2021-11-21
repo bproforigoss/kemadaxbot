@@ -7,9 +7,6 @@ on:
         description: 'Docker image tag'     
         required: true
         default: 'sha-adc59d9'
-      secrets:
-        required: false
-        kubeconfig: ${{secrets.KUBE_CONFIG }}
         
         
         
@@ -19,7 +16,7 @@ on:
         required: true
         type: string
     secrets:
-      kubeconfig:
+      KUBE_CONFIG:
         required: true   
     
 
@@ -35,7 +32,7 @@ jobs:
         uses: azure/k8s-set-context@v1
         with:
           method: kubeconfig
-          kubeconfig: ${{secrets.kubeconfig}}
+          kubeconfig: ${{secrets.KUBE_CONFIG}}
           
       - name: Deploy to Cluster
         run: |
