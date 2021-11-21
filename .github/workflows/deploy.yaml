@@ -30,9 +30,9 @@ jobs:
         uses: azure/k8s-set-context@v1
         with:
           method: kubeconfig
-          kubeconfig: ${{ github.event.secrets.kubeconfig }} 
+          kubeconfig: ${{secrets.kubeconfig}}
           
       - name: Deploy to Cluster
         run: |
-          export IMG=ghcr.io/bproforigoss/kemadaxbot:${{ github.event.inputs.image_name }}
+          export IMG=ghcr.io/bproforigoss/kemadaxbot:${{inputs.image_name }}
           envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
