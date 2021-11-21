@@ -65,7 +65,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         
-  deploy:
+  deploy_by_tag:
     runs-on: ubuntu-latest
     steps:
       - name: Extract commit tag
@@ -74,7 +74,7 @@ jobs:
 
       - name: Deploy by condition
         if: ${{ startsWith($GIT_TAG_NAME,'deploy')}}
-        uses: bproforigoss/kemadaxbot//.github/workflows/deploy.yaml
+        uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml
         with:
           image_name: ${{ env.IMAGE_NAME }}
           
