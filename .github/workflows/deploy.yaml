@@ -7,9 +7,6 @@ on:
         description: 'Docker image tag'     
         required: true
         default: 'sha-adc59d9'
-      kubeconfig:     
-        required: false
-        default: ${{ secrets.KUBE_CONFIG }} 
         
   workflow_call:
     inputs:
