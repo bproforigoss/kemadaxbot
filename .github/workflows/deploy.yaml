@@ -7,12 +7,19 @@ on:
         description: 'Docker image tag'     
         required: true
         default: 'sha-adc59d9'
+      kubeconfig:     
+        required: false
+        default: ${{ secrets.KUBE_CONFIG }} 
         
   workflow_call:
     inputs:
       image_name:
         required: true
         type: string
+    secrets:
+      kubeconfig:
+        required: true   
+    
 
 jobs:
 
@@ -26,7 +33,7 @@ jobs:
         uses: azure/k8s-set-context@v1
         with:
           method: kubeconfig
-          kubeconfig: ${{ secrets.KUBE_CONFIG }} 
+          kubeconfig: ${{ github.event.inputs.image_name }} 
           
       - name: Deploy to Cluster
         run: |

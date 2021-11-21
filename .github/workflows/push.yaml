@@ -85,5 +85,6 @@ jobs:
         uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml@main
         with:
           image_name: $IMAGE_NAME
+          kubeconfig: ${{ secrets.KUBE_CONFIG }} 
           
       
