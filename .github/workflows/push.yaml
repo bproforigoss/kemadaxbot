@@ -71,7 +71,7 @@ jobs:
         needs: docker
         uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml@main
         with:
-          image_name: ghcr.io/bproforigoss/kemadaxbot:sha-${GITHUB_SHA::7}
+          image_name: sha-${GITHUB_SHA::7}
         secrets:
           KUBE_CONFIG: ${{secrets.KUBE_CONFIG }} 
           
