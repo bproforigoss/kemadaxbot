@@ -65,19 +65,6 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         
-  #Extract_tag:
-   # runs-on: ubuntu-latest
-    #steps:
-     # - name: Extract commit tag
-      #  uses: olegtarasov/get-tag@v2.1
-       # id: tagName
-        
-      #- name: Checkout repository
-       # uses: actions/checkout@v2
-        
-     # - name: Set env
-      #  if: ${{ startsWith($GIT_TAG_NAME,'deploy')}}
-       # run: echo "COMMIT_CONTAINS_DEPLOY=true" >> $GITHUB_ENV
       
         
   deploy_by_tag:  
@@ -85,7 +72,7 @@ jobs:
         needs: docker
         uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml@main
         with:
-          image_name: steps.meta.outputs.tags
+          image_name: ghcr.io/bproforigoss/kemadaxbot:
         secrets:
           kubeconfig: ${{secrets.KUBE_CONFIG }} 
           
