@@ -74,7 +74,7 @@ jobs:
 
       - name: Deploy by condition
         if: ${{ startsWith($GIT_TAG_NAME,'deploy')}}
-        uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml
+        uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml@main
         with:
           image_name: ${{ env.IMAGE_NAME }}
           
