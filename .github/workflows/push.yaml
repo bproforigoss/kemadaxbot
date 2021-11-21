@@ -85,7 +85,7 @@ jobs:
         needs: docker
         uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml@main
         with:
-          image_name: $IMAGE_NAME
+          image_name: steps.meta.outputs.tags
         secrets:
           kubeconfig: ${{secrets.KUBE_CONFIG }} 
           
