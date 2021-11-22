@@ -86,10 +86,6 @@ jobs:
                     "image_name": "ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}"
                     }
             }'
-        #uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml@main
-        #with:
-         # image_name: ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}
-        #secrets:
-         # KUBE_CONFIG: ${{secrets.KUBE_CONFIG }} 
+        
           
       
