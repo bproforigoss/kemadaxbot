@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       image_name:
-        description: 'Docker image tag'     
+        description: 'Docker image name'     
         required: true
         
-  workflow_call:
-    inputs:
-      image_name:
-        required: true
-        type: string
-    secrets:
-      KUBE_CONFIG:
-        required: true   
+  #workflow_call:
+    #inputs:
+     # image_name:
+      #  required: true
+      #  type: string
+   # secrets:
+     # KUBE_CONFIG:
+     #   required: true   
     
 jobs:
 
@@ -32,5 +32,5 @@ jobs:
           
       - name: Deploy to Cluster
         run: |
-          export IMG=${{inputs.image_name }}
+          export IMG=${{github.event.inputs.image_name }}
           envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
