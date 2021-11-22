@@ -36,5 +36,5 @@ jobs:
           
       - name: Deploy to Cluster
         run: |
-          export IMG=ghcr.io/${{ github.repository_owner }}/kemadaxbot:${{inputs.image_name }}
+          export IMG=ghcr.io/${{ github.repository_owner }}/kemadaxbot:${{github.event.inputs.image_name }}
           envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
