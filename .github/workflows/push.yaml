@@ -67,7 +67,7 @@ jobs:
          
         
   deploy_by_tag:  
-        if: ${{ contains(${{github.ref_name}},'deploy')}}
+        if: ${{ contains(github.ref_name,'deploy')}}
         runs-on: ubuntu-latest
         needs: docker
         env:
