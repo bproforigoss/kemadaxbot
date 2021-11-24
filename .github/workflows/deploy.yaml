@@ -6,12 +6,17 @@ on:
       image_name:
         description: 'Docker image name'     
         required: true
+      
+        
         
   workflow_call:
     inputs:
       image_name:
         required: true
         type: string
+      secrets:
+        required: false
+        
 jobs:
 
   deploy_to_kubernetes_cluster:
