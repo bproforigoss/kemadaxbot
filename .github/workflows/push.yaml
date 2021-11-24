@@ -5,7 +5,8 @@ on: push
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-
+  
+permissions: read-all|write-all
 
 jobs:
 
@@ -68,7 +69,6 @@ jobs:
         
   deploy_by_tag:  
         if: ${{ contains(github.ref_name,'deploy')}}
-        permissions: read-all|write-all
         uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml@main
         with:
           image_name: ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}
