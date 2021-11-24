@@ -16,6 +16,7 @@ on:
         type: string
       secrets:
         required: false
+        type: string
         
 jobs:
 
