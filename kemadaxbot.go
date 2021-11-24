@@ -57,7 +57,7 @@ func main() {
 
 	for update := range updates {
 		log.Printf("%+v\n", update)
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hi Buddy!")
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello Buddy!")
 		if _, err := bot.Send(msg); err != nil {
 			log.Panic(err)
 		}
