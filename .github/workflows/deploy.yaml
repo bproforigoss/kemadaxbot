@@ -7,16 +7,14 @@ on:
         description: 'Docker image name'     
         required: true
       
-        
-        
-  workflow_call:
-    inputs:
-      image_name:
-        required: true
-        type: string
-      secrets:
-        required: false
-        type: string
+ # workflow_call:
+  #  inputs:
+   #   image_name:
+    #    required: true
+     #   type: string
+      #secrets:
+       # required: false
+        #type: string
         
 jobs:
 
