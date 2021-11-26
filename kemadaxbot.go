@@ -13,8 +13,10 @@ import (
 func init() {
 
 	log.SetOutput(os.Stdout)
-	
+
 }
+
+var reply tgbotapi.ForceReply
 
 func main() {
 
@@ -56,8 +58,43 @@ func main() {
 	go log.Panic(http.ListenAndServe(":8080", nil))
 
 	for update := range updates {
+		/*log.Printf("%+v\n", update)
+				number, err := strconv.Atoi(update.Message.Text)
+		        if err != nil {
+					log.WithError(err).Warn("Converting string to int failed")
+			    }
+
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello Buddy!")
+				if _, err := bot.Send(msg); err != nil {
+					log.Panic(err)
+				}*/
+		/*if !update.Message.IsCommand() { // ignore any non-command Messages
+		            msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello Buddy!")
+				    if _, err := bot.Send(msg); err != nil {
+					log.Panic(err)
+				    }
+		        }
+
+		        msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+
+		        // Extract the command from the Message.
+		        switch update.Message.Command() {
+		        case "convert":
+					reply.ForceReply=true
+					if number, err := bot.Send(reply); err != nil {
+						log.Panic(err)
+					}
+		            msg.Text = "I understand /sayhi and /status."
+
+		        default:
+		            msg.Text = "I don't know that command"
+		        }
+
+		        if _, err := bot.Send(msg); err != nil {
+		            log.Panic(err)
+		        }*/
 		log.Printf("%+v\n", update)
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello Buddy!")
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello Origoss!")
 		if _, err := bot.Send(msg); err != nil {
 			log.Panic(err)
 		}
