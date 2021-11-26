@@ -16,7 +16,7 @@ func init() {
 
 }
 
-var reply tgbotapi.ForceReply
+//var reply tgbotapi.ForceReply
 
 func main() {
 
