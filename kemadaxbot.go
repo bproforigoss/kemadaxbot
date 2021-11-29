@@ -12,14 +12,19 @@ import (
 
 func init() {
 
+	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 
 }
 
-//var reply tgbotapi.ForceReply
-
 func main() {
 
+	if len(os.Args) > 1 && os.Args[1] == "-v" {
+		log.SetLevel(log.DebugLevel)
+		log.Debug("Set loglevel to Debug")
+	} else {
+		log.SetLevel(log.WarnLevel)
+	}
 	purl := os.Getenv("PUBLIC_URL")
 
 	webHookURL := tgbotapi.NewWebhook(purl)
@@ -36,10 +41,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	info, err := bot.GetWebhookInfo()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if info.LastErrorDate != 0 {
 		log.Printf("Telegram callback failed: %s", info.LastErrorMessage)
 	}
@@ -58,46 +65,31 @@ func main() {
 	go log.Panic(http.ListenAndServe(":8080", nil))
 
 	for update := range updates {
-		/*log.Printf("%+v\n", update)
-				number, err := strconv.Atoi(update.Message.Text)
-		        if err != nil {
-					log.WithError(err).Warn("Converting string to int failed")
-			    }
 
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello Buddy!")
-				if _, err := bot.Send(msg); err != nil {
-					log.Panic(err)
-				}*/
-		/*if !update.Message.IsCommand() { // ignore any non-command Messages
-		            msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello Buddy!")
-				    if _, err := bot.Send(msg); err != nil {
-					log.Panic(err)
-				    }
-		        }
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
-		        msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+		if !update.Message.IsCommand() {
+			log.Debug("Answering Hello by default")
+			msg.Text = "Hello Buddy"
+		}
 
-		        // Extract the command from the Message.
-		        switch update.Message.Command() {
-		        case "convert":
-					reply.ForceReply=true
-					if number, err := bot.Send(reply); err != nil {
-						log.Panic(err)
-					}
-		            msg.Text = "I understand /sayhi and /status."
+		switch update.Message.Command() {
+		case "convert":
+			log.Debug("Converting number to text")
+			msg.Text = "convert function not ready yet"
+		case "ping":
+			log.Debug("Responding pong, to /ping command")
+			msg.Text = "pong"
+		default:
+			log.Debug("Response to unknown command")
+			msg.Text = "I don't know that command"
+		}
 
-		        default:
-		            msg.Text = "I don't know that command"
-		        }
-
-		        if _, err := bot.Send(msg); err != nil {
-		            log.Panic(err)
-		        }*/
-		log.Printf("%+v\n", update)
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello Origoss!")
 		if _, err := bot.Send(msg); err != nil {
+			log.Debug("Bot sending response")
 			log.Panic(err)
 		}
+
 	}
 
 }
