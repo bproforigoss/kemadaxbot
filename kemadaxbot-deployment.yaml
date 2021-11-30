@@ -17,6 +17,8 @@ spec:
       containers:
       - name: kemadaxbot
         image: $IMG
+        command: $CMD
+        args: $ARGS
         ports:
         - containerPort: 8080
         env:

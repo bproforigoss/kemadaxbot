@@ -7,6 +7,13 @@ on:
       image_name:
         required: true
         type: string
+      command:
+        required: true
+        type: string
+      args:
+        required: true
+        type: string
+      
     secrets:
       kube_config:
         required: true   
@@ -28,4 +35,6 @@ jobs:
       - name: Deploy to Cluster
         run: |
           export IMG=${{inputs.image_name }}
-          envsubst < kemadaxbot-debug-deployment.yaml | kubectl apply -f -
+          export CMD=${{inputs.command }}
+          export ARGS=${{inputs.args }}
+          envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
