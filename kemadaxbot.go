@@ -69,8 +69,8 @@ func main() {
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 		if !update.Message.IsCommand() {
-			log.Debug("Answering Hello by default")
-			msg.Text = "Hello Buddy"
+			log.Debug("Answering Hey by default")
+			msg.Text = "Hey Buddy"
 		}
 
 		switch update.Message.Command() {
