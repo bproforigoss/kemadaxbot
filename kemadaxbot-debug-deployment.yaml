@@ -17,6 +17,7 @@ spec:
       containers:
       - name: kemadaxbot
         image: $IMG
+        command: ["/kemadaxbot"]
         args: ["-v"]
         ports:
         - containerPort: 8080
