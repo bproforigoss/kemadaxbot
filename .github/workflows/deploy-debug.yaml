@@ -1,0 +1,31 @@
+name: Deploy_debug
+
+on: 
+
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+    secrets:
+      kube_config:
+        required: true   
+    
+jobs:
+
+  deploy_to_kubernetes_cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{secrets.kube_config}}
+          
+      - name: Deploy to Cluster
+        run: |
+          export IMG=${{inputs.image_name }}
+          envsubst < kemadaxbot-debug-deployment.yaml | kubectl apply -f -

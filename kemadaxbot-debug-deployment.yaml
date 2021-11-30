@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kemadaxbot-debug-deployment
+  labels:
+    app: kemadaxbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kemadaxbot
+  template:
+    metadata:
+      labels:
+        app: kemadaxbot
+    spec:
+      containers:
+      - name: kemadaxbot
+        image: $IMG
+        args: ["-v"]
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USER
+          value: kemadax
+        - name: PUBLIC_URL
+          value: kemadaxbot.bprof.gesz.dev

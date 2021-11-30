@@ -65,7 +65,7 @@ jobs:
         uses: golangci/golangci-lint-action@v2
          
         
-  deploy_by_tag:  
+  deploy_by_tag_deploy:  
         if: ${{ contains(github.ref_name,'deploy')}}
         runs-on: ubuntu-latest
         needs: docker
@@ -86,7 +86,12 @@ jobs:
                     }
             }'
         
-          #uses: bproforigoss/kemadaxbot/.github/workflows/deploy.yaml@main
-          #with:
-            #image_name: ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}
-      
+  deploy_by_tag_debug:  
+        if: ${{ contains(github.ref_name,'debug')}}
+        needs: docker
+        uses: bproforigoss/kemadaxbot/.github/workflows/deploy-debug.yaml@main
+        with:
+          image_name: ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}
+        secrets:
+          kube_config: ${{secrets.KUBE_CONFIG }} 
+          
