@@ -34,7 +34,7 @@ jobs:
           
       - name: Deploy to Cluster
         run: |
-          export IMG=${{inputs.image_name }}
-          export CMD=${{inputs.command }}
-          export ARGS=${{inputs.args }}
+          export IMG=[${{inputs.image_name }}]
+          export CMD=[${{inputs.command }}]
+          export ARGS=[${{inputs.args }}]
           envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
