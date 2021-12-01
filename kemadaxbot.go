@@ -33,6 +33,8 @@ func main() {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.WithError(err).Fatal("Something wrong with telegram token")
+		log.Printf("Telegram token: %s", token)
+
 	}
 
 	bot.Debug = true
