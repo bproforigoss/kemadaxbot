@@ -11,8 +11,7 @@ on:
       kube_config:
         required: true
       telegram_token:
-        type: string
-        required: true   
+        type: string   
     
 jobs:
 
