@@ -32,7 +32,7 @@ func main() {
 
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
-		log.Fatal(err)
+		log.WithError(err).Fatal("Something wrong with telegram token")
 	}
 
 	bot.Debug = true
@@ -40,7 +40,7 @@ func main() {
 
 	_, err = bot.SetWebhook(webHookURL)
 	if err != nil {
-		log.Fatal(err)
+		log.WithError(err).Fatal("Something wrong with webhook")
 	}
 
 	info, err := bot.GetWebhookInfo()
