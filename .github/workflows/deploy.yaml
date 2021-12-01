@@ -7,14 +7,6 @@ on:
         description: 'Docker image name'     
         required: true
       
- # workflow_call:
-  #  inputs:
-   #   image_name:
-    #    required: true
-     #   type: string
-      #secrets:
-       # required: false
-        #type: string
         
 jobs:
 
@@ -33,4 +25,6 @@ jobs:
       - name: Deploy to Cluster
         run: |
           export IMG=${{github.event.inputs.image_name }}
+          export API_TOKEN=${{secrets.TELEGRAM_TOKEN }}
           envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
+          kubectl apply -f kemadaxbot-service.yaml

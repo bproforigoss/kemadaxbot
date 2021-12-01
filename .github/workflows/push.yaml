@@ -92,8 +92,7 @@ jobs:
         uses: bproforigoss/kemadaxbot/.github/workflows/deploy-debug.yaml@main
         with:
           image_name: ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}
-          command: /kemadaxbot
-          args: -v
         secrets:
           kube_config: ${{secrets.KUBE_CONFIG }} 
+          telegram_token: ${{secrets.TELEGRAM_TOKEN }}
           

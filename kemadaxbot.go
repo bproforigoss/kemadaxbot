@@ -26,10 +26,11 @@ func main() {
 		log.SetLevel(log.WarnLevel)
 	}
 	purl := os.Getenv("PUBLIC_URL")
+	token := os.Getenv("API_TOKEN")
 
 	webHookURL := tgbotapi.NewWebhook(purl)
 
-	bot, err := tgbotapi.NewBotAPI("2042481517:AAGd1WViLeY8fpNEdmkDF1C0qIjlr1i6p4g")
+	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Fatal(err)
 	}

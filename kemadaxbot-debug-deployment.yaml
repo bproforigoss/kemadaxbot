@@ -17,6 +17,8 @@ spec:
       containers:
       - name: kemadaxbot
         image: $IMG
+        command: ["/kemadaxbot"]
+        args: ["-v"]
         ports:
         - containerPort: 8080
         env:
@@ -26,10 +28,3 @@ spec:
           value: kemadaxbot.bprof.gesz.dev
         - name: API_TOKEN
           value: $TOKEN
-        
-          
-         
-    
-      
-    
-      
