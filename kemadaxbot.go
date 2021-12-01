@@ -69,7 +69,13 @@ func main() {
 
 	for update := range updates {
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+		log.Printf("%+v\n", update)
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hi Buddy!")
+		if _, err := bot.Send(msg); err != nil {
+			log.Panic(err)
+		}
+
+		/*msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 		if !update.Message.IsCommand() {
 			log.Debug("Answering Hey by default")
@@ -91,7 +97,7 @@ func main() {
 		if _, err := bot.Send(msg); err != nil {
 			log.Debug("Bot sending response")
 			log.Panic(err)
-		}
+		}*/
 
 	}
 
