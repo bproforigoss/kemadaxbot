@@ -30,7 +30,7 @@ jobs:
       - name: Deploy to Cluster
         run: |
           export IMG=${{inputs.image_name }}
-          export API_TOKEN=${{secrets.telegram_token }}
+          export TOKEN=${{secrets.telegram_token }}
           envsubst < kemadaxbot-debug-deployment.yaml | kubectl apply -f -
           
       - name: Deploy service to Cluster
