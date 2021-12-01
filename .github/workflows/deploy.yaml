@@ -27,4 +27,8 @@ jobs:
           export IMG=${{github.event.inputs.image_name }}
           export API_TOKEN=${{secrets.TELEGRAM_TOKEN }}
           envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
+          
+      - name: Deploy service to Cluster
+        run: |
           kubectl apply -f kemadaxbot-service.yaml
+          
