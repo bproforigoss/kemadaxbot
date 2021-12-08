@@ -34,7 +34,7 @@ jobs:
       - name: Deploy secret to Cluster
         run: |
           export SCT=${{secrets.TELEGRAM_TOKEN}} 
-          kubectl apply -f kemadaxbot-secret.yaml
+          envsubst < kemadaxbot-secret.yaml | kubectl apply -f -
           
       - name: Deploy configmap to Cluster
         run: |
