@@ -65,7 +65,7 @@ func main() {
 		}
 	}
 	http.HandleFunc("/hello", helloHandler)
-	go http.ListenAndServe(":8080", nil)
+	go func() { log.Panic(http.ListenAndServe(":8080", nil)) }()
 
 	for update := range updates {
 		/*

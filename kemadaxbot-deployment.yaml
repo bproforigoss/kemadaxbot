@@ -24,7 +24,7 @@ spec:
           valueFrom: 
             secretKeyRef: 
               key: telegram_token
-              name: kemadaxbot-sceret
+              name: kemadaxbot-secret
         - name: USER
           valueFrom:
             configMapKeyRef:
