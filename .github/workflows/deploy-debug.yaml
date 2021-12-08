@@ -10,8 +10,6 @@ on:
     secrets:
       kube_config:
         required: true
-      telegram_token:
-        required: true  
     
 jobs:
 
@@ -30,10 +28,13 @@ jobs:
       - name: Deploy to Cluster
         run: |
           export IMG=${{inputs.image_name }}
-          export TOKEN=${{secrets.telegram_token }}
           envsubst < kemadaxbot-debug-deployment.yaml | kubectl apply -f -
           
       - name: Deploy service to Cluster
         run: |
           kubectl apply -f kemadaxbot-service.yaml
+          
+      - name: Deploy configmap to Cluster
+        run: |
+          kubectl apply -f kemadaxbot-configmap.yaml
           

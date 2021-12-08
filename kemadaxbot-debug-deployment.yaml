@@ -22,9 +22,18 @@ spec:
         ports:
         - containerPort: 8080
         env:
-        - name: USER
-          value: kemadax
-        - name: PUBLIC_URL
-          value: kemadaxbot.bprof.gesz.dev
         - name: API_TOKEN
-          value: $TOKEN
+          valueFrom: 
+            secretKeyRef: 
+              key: telegram_token
+              name: kemadaxbot-sceret
+        - name: USER
+          valueFrom:
+            configMapKeyRef:
+              name: kemadaxbot-configmap
+              key: user
+        - name: PUBLIC_URL
+          valueFrom:
+            configMapKeyRef:
+              name: kemadaxbot-configmap
+              key: public_url
