@@ -29,7 +29,6 @@ jobs:
           
       - name: Deploy to Cluster
         run: |
-          kubectl create secret generic kemadaxbot-secret --from-literal=telegram_token=${{secrets.telegram_token}}
           cd k8s
           kubectl apply -k edit set image ${{inputs.image_name  }}
           kubectl apply -k ./kubernetes/chatbot-app/overlays/development/
