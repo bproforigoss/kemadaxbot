@@ -29,7 +29,7 @@ jobs:
           
       - name: Deploy to Cluster
         run: |
-          cd k8s
+          cd kubernetes
           kubectl apply -k edit set image ${{inputs.image_name  }}
           kubectl apply -k ./kubernetes/chatbot-app/overlays/development/
       
