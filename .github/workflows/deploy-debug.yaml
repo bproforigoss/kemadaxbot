@@ -31,9 +31,9 @@ jobs:
         run: |
           cd kubernetes/chatbot-app/base/
           kustomize edit set image kemadax=${{inputs.image_name  }}
-          cd kubernetes/chatbot-app/overlays/development/secrets/
+          cd ../overlays/development/secrets/
           echo -n ${{secrets.kube_config}} | base64>secrets.txt
-          cd kubernetes/chatbot-app/base/overlays/development/
+          cd ../
           kubectl kustomize ./
           kubectl apply -k ./
       
