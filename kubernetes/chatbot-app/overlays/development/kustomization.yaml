@@ -2,3 +2,11 @@ bases:
   - ../../base
 patches:
   - verbose.yaml
+configMapGenerator:
+- name: kemadaxbot-configmap
+  files:
+  - configs/application.properties
+secretGenerator:
+- name: kemadaxbot-secret
+  files:
+  - secrets/secrets.txt

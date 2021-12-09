@@ -19,11 +19,16 @@ spec:
         image: kemadax
         ports:
         - containerPort: 8080
+        volumeMounts:
+        - name: config
+          mountPath: /config/
+        - name: secret
+          mountPath: /secret/
         env:
         - name: API_TOKEN
           valueFrom: 
             secretKeyRef: 
-              key: telegram_token
+              key: secrets.txt
               name: kemadaxbot-secret
         - name: USER
           valueFrom:
@@ -35,6 +40,14 @@ spec:
             configMapKeyRef:
               name: kemadaxbot-configmap
               key: public_url
+      volumes:
+      - name: config
+        configMap:
+          name: kemadaxbot-configmap
+      - name: telegram_token
+        secret:
+          secretName: kemadaxbot-secret
+        
         
           
          

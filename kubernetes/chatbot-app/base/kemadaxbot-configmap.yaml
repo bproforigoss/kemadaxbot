@@ -1,8 +1,0 @@
-kind: ConfigMap 
-apiVersion: v1 
-metadata:
-  name: kemadaxbot-configmap 
-data:
-  user: kemadax
-  public_url: kemadaxbot.bprof.gesz.dev
-  
