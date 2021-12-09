@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: kemadaxbot
-        image: ghcr.io/bproforigoss/kemadaxbot
+        image: kemadax
         ports:
         - containerPort: 8080
         env:

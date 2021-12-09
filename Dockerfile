@@ -7,4 +7,4 @@ FROM scratch
 EXPOSE 8080
 COPY --from=0 /gocode/src/github.com/bproforigoss/kemadaxbot/kemadaxbot /kemadaxbot
 COPY --from=0 /etc/ssl/certs/ca-certificates.crt  /etc/ssl/certs/
-CMD ["/kemadaxbot"]
+ENTRYPOINT ["/kemadaxbot"]
