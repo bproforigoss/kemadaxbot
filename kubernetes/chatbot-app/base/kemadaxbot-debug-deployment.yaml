@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kemadaxbot-deployment
+  labels:
+    app: kemadaxbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kemadaxbot
+  template:
+    metadata:
+      labels:
+        app: kemadaxbot
+    spec:
+      containers:
+      - name: kemadaxbot
+        image: $IMG
+        command: ["/kemadaxbot"]
+        args: ["-v"]
+        ports:
+        - containerPort: 8080
+        env:
+        - name: API_TOKEN
+          valueFrom: 
+            secretKeyRef: 
+              key: telegram_token
+              name: kemadaxbot-sceret
+        - name: USER
+          valueFrom:
+            configMapKeyRef:
+              name: kemadaxbot-configmap
+              key: user
+        - name: PUBLIC_URL
+          valueFrom:
+            configMapKeyRef:
+              name: kemadaxbot-configmap
+              key: public_url

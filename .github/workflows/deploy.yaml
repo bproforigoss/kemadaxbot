@@ -24,19 +24,8 @@ jobs:
           
       - name: Deploy to Cluster
         run: |
-          export IMG=${{github.event.inputs.image_name }}
-          envsubst < kemadaxbot-deployment.yaml | kubectl apply -f -
-          
-      - name: Deploy service to Cluster
-        run: |
-          kubectl apply -f kemadaxbot-service.yaml
-      
-      - name: Deploy secret to Cluster
-        run: |
-          export SCT=${{secrets.TELEGRAM_TOKEN}} 
-          envsubst < kemadaxbot-secret.yaml | kubectl apply -f -
-          
-      - name: Deploy configmap to Cluster
-        run: |
-          kubectl apply -f kemadaxbot-configmap.yaml
+          kubectl create secret generic kemadaxbot-secret --from-literal=telegram_token=${{secrets.TELEGRAM_TOKEN}}
+          cd k8s
+          kubectl apply -k edit set image ${{github.event.inputs.image_name }}
+          kubectl apply -k ./kubernetes/chatbot-app/overlays/production/
           
