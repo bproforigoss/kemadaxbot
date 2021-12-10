@@ -4,8 +4,9 @@ patches:
   - verbose.yaml
 configMapGenerator:
 - name: kemadaxbot-configmap
-  files:
-  - configs/application.properties
+  literals:
+  - user=kemadax
+  - public_url=kemadaxbot.bprof.gesz.dev
 secretGenerator:
 - name: kemadaxbot-secret
   files:
