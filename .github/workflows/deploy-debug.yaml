@@ -34,7 +34,6 @@ jobs:
           cd ../overlays/development/secrets/
           echo -n ${{secrets.kube_config}} | base64>secrets.txt
           cd ../
-          kustomize ./
           kubectl apply -k ./
       
           
