@@ -33,7 +33,7 @@ jobs:
           kustomize edit set image kemadax=${{inputs.image_name  }}
           kustomize build 
           cd ../overlays/development/secrets/
-          echo -n ${{secrets.telegram_token}} | base64> secrets.txt
+          echo ${{secrets.telegram_token}} > secrets.txt
           cd ../
           kubectl apply -k ./
       
