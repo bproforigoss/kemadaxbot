@@ -9,7 +9,7 @@ env:
 jobs:
 
   build:
-    if: ${{!contains(github.ref_name,'debug' && !contains(github.ref_name,'deploy'))}}
+    if: ${{contains(github.ref_name,'debug')==false && contains(github.ref_name,'deploy')==false}}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
