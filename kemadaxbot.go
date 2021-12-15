@@ -81,17 +81,20 @@ func main() {
 			log.Debug("Answering Hey by default")
 			msg.Text = "Hey Buddy"
 		}
+		if update.Message.IsCommand() {
 
-		switch update.Message.Command() {
-		case "convert":
-			log.Debug("Converting number to text")
-			msg.Text = "convert function not ready yet"
-		case "ping":
-			log.Debug("Responding pong, to /ping command")
-			msg.Text = "pong"
-		default:
-			log.Debug("Response to unknown command")
-			msg.Text = "I don't know that command"
+			switch update.Message.Command() {
+			case "convert":
+				log.Debug("Converting number to text")
+				arg := update.Message.CommandArguments()
+				msg.Text = arg
+			case "ping":
+				log.Debug("Responding pong, to /ping command")
+				msg.Text = "pong"
+			default:
+				log.Debug("Response to unknown command")
+				msg.Text = "I don't know that command"
+			}
 		}
 
 		if _, err := bot.Send(msg); err != nil {
