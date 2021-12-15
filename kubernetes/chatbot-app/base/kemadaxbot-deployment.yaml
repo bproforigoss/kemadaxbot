@@ -24,22 +24,11 @@ spec:
           mountPath: /config/
         - name: secret
           mountPath: /secret/
-        env:
-        - name: API_TOKEN
-          valueFrom: 
-            secretKeyRef: 
-              key: secrets.txt
+        envFrom:
+        - configMapRef:
+            name: kemadaxbot-configmap
+        - secretRef:
               name: kemadaxbot-secret
-        - name: USER
-          valueFrom:
-            configMapKeyRef:
-              name: kemadaxbot-configmap
-              key: user
-        - name: PUBLIC_URL
-          valueFrom:
-            configMapKeyRef:
-              name: kemadaxbot-configmap
-              key: public_url
       volumes:
       - name: config
         configMap:

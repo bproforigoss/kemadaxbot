@@ -30,11 +30,9 @@ jobs:
       - name: Deploy to Cluster
         run: |
           cd kubernetes/chatbot-app/base/
-          kubectl kustomize edit set image kemadax=${{inputs.image_name  }}
-          cd ../overlays/development/secrets/
-          echo -n ${{secrets.telegram_token}} > secrets.txt
-          cd ../
-          kubectl apply -k ./
+          kustomize edit set image kemadax=${{inputs.image_name  }}
+          echo -n ${{secrets.telegram_token}} > kemadaxbot/kubernetes/chatbot-app/base/secrets/API_TOKEN
+          kubectl apply -k kemadaxbot/kubernetes/chatbot-app/overlays/development/
       
           
       

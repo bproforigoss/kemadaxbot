@@ -5,3 +5,12 @@ images:
 - name: kemadax
   newName: ghcr.io/bproforigoss/kemadaxbot
   newTag: latest
+configMapGenerator:
+- name: kemadaxbot-configmap
+  literals:
+  - USER=kemadax
+  - PUBLIC_URL=kemadaxbot.bprof.gesz.dev
+secretGenerator:
+- name: kemadaxbot-secret
+  files:
+  - secrets/API_TOKEN
