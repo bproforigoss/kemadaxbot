@@ -24,7 +24,9 @@ jobs:
           
       - name: Deploy to Cluster
         run: |
-          cd kubernetes
-          kubectl apply -k set image ${{github.event.inputs.image_name }}
-          kubectl apply -k ./kubernetes/chatbot-app/overlays/production/
+          cd kubernetes/chatbot-app/base/
+          kustomize edit set image kemadax=${{inputs.image_name  }}
+          cd ../../../
+          echo -n ${{secrets.TELEGRAM_TOKEN}} > kubernetes/chatbot-app/base/secrets/API_TOKEN
+          kubectl apply -k kubernetes/chatbot-app/overlays/production/
           
