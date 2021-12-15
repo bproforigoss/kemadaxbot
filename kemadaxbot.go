@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"testing"
 
 	log "github.com/sirupsen/logrus"
 
@@ -36,13 +35,6 @@ func convert(num int) string {
 		return "This value is not currently found in our database to convert"
 	}
 	return value
-}
-
-func TestConversionUpToTen(t *testing.T) {
-	conversionResult := convert(6)
-	if conversionResult != "hat" {
-		t.Errorf("Conversion was incorrect, got: %s, want: %s ", conversionResult, "hat")
-	}
 }
 
 func main() {
