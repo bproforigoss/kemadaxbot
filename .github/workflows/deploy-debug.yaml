@@ -31,8 +31,8 @@ jobs:
         run: |
           cd kubernetes/chatbot-app/base/
           kustomize edit set image kemadax=${{inputs.image_name  }}
-          echo -n ${{secrets.telegram_token}} > kemadaxbot/kubernetes/chatbot-app/base/secrets/API_TOKEN
-          kubectl apply -k kemadaxbot/kubernetes/chatbot-app/overlays/development/
+          echo -n ${{secrets.telegram_token}} > kubernetes/chatbot-app/base/secrets/API_TOKEN
+          kubectl apply -k kubernetes/chatbot-app/overlays/development/
       
           
       
