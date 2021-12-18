@@ -7,10 +7,9 @@ images:
   newTag: latest
 configMapGenerator:
 - name: kemadaxbot-configmap
-  literals:
-  - USER=kemadax
-  - PUBLIC_URL=kemadaxbot.bprof.gesz.dev
+  envs:
+  - env/chatbot.env
 secretGenerator:
 - name: kemadaxbot-secret
-  files:
-  - secrets/API_TOKEN
+  envs:
+  - secret/chatbot.secret

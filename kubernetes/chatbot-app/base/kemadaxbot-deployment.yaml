@@ -19,11 +19,6 @@ spec:
         image: kemadax
         ports:
         - containerPort: 8080
-        #volumeMounts:
-        #- name: config
-        #  mountPath: /config/
-        #- name: secret
-        #  mountPath: /secret/
         envFrom:
         - configMapRef:
             name: kemadaxbot-configmap
@@ -34,13 +29,6 @@ spec:
             path: /hello
             port: 8080
 
-      #volumes:
-      #- name: config
-        #configMap:
-          #name: kemadaxbot-configmap
-      #- name: secret
-        #secret:
-          #secretName: kemadaxbot-secret
         
         
           
