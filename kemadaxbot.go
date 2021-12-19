@@ -31,7 +31,7 @@ func convert(num int) string {
 	if num < 2000 || num > 2000 && num%1000 == 0 {
 
 		if num < 0 {
-			return "minusz" + convert(-num)
+			return "mínusz " + convert(-num)
 		}
 		if num < 30 {
 			return egyes[num]
@@ -54,7 +54,7 @@ func convert(num int) string {
 	} else {
 
 		if num < 0 {
-			return "minusz " + convert(-num)
+			return "mínusz " + convert(-num)
 		}
 		if num < 30 {
 			return egyes[num]
@@ -150,7 +150,8 @@ func main() {
 					if num == 0 {
 						msg.Text = "Nulla"
 					} else {
-						msg.Text = strings.Title(convert(num))
+						converetedNum := convert(num)
+						msg.Text = strings.Title(converetedNum)
 					}
 				}
 
