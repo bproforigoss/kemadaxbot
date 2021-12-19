@@ -18,23 +18,45 @@ func init() {
 
 }
 func convert(num int) string {
+
 	var egyes = map[int]string{
-		1:  "egy",
-		2:  "kettő",
-		3:  "három",
-		4:  "négy",
-		5:  "öt",
-		6:  "hat",
-		7:  "hét",
-		8:  "nyolc",
-		9:  "kilenc",
-		10: "tíz",
+		1: "egy", 2: "kettő", 3: "három", 4: "négy", 5: "öt", 6: "hat", 7: "hét", 8: "nyolc", 9: "kilenc", 10: "tíz",
+		11: "tizenegy", 12: "tizenkettő", 13: "tizenhárom", 14: "tizennégy", 15: "tizenöt", 16: "tizenhat", 17: "tizenhét", 18: "tizennyolc", 19: "tizenkilenc",
+		20: "húsz", 21: "huszonegy", 22: "huszonkettő", 23: "huszonhárom", 24: "huszonégy", 25: "huszonöt", 26: "huszonhat", 27: "huszonhét", 28: "huszonnyolc", 29: "huszonkilnec",
 	}
-	value, ok := egyes[num]
-	if !ok {
-		return "This value is not currently found in our database to convert"
+	var tizes = map[int]string{
+		1: "", 2: "", 3: "harminc", 4: "negyven", 5: "ötven", 6: "hatvan", 7: "hetven", 8: "nyolcvan", 9: "kilencven",
 	}
-	return value
+	if num == 0 {
+		return "nulla"
+	}
+
+	if num < 0 {
+		return "minus " + convert(-num)
+	}
+
+	if num < 30 {
+		return egyes[num]
+	}
+
+	if num < 100 {
+		return tizes[num/10] + egyes[int(num%10)]
+	}
+
+	if num < 1000 {
+		return egyes[num/100] + "száz " + convert(int(num%100))
+	}
+
+	if num < 1000000 {
+		return convert(num/1000) + "ezer " + convert(int(num%1000))
+	}
+
+	if num < 1000000000 {
+		return convert(num/1000000) + "millió " + convert(int(num%1000000))
+	}
+
+	return convert(num/1000000000) + "milliárd " + convert(int(num%1000000000))
+
 }
 
 func main() {
