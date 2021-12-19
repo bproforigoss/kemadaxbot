@@ -27,36 +27,63 @@ func convert(num int) string {
 	var tizes = map[int]string{
 		1: "", 2: "", 3: "harminc", 4: "negyven", 5: "ötven", 6: "hatvan", 7: "hetven", 8: "nyolcvan", 9: "kilencven",
 	}
-	if num == 0 {
-		return "nulla"
+	if num < 2000 {
+		if num == 0 {
+			return "nulla"
+		}
+
+		if num < 0 {
+			return "minusz" + convert(-num)
+		}
+
+		if num < 30 {
+			return egyes[num]
+		}
+
+		if num < 100 {
+			return tizes[num/10] + egyes[int(num%10)]
+		}
+
+		if num < 1000 {
+			return egyes[num/100] + "száz" + convert(int(num%100))
+		}
+
+		if num < 1000000 {
+			return convert(num/1000) + "ezer" + convert(int(num%1000))
+		}
+		return ""
+
+	} else {
+		if num == 0 {
+			return "nulla"
+		}
+
+		if num < 0 {
+			return "minusz " + convert(-num)
+		}
+
+		if num < 30 {
+			return egyes[num]
+		}
+
+		if num < 100 {
+			return tizes[num/10] + egyes[int(num%10)]
+		}
+
+		if num < 1000 {
+			return egyes[num/100] + "száz-" + convert(int(num%100))
+		}
+
+		if num < 1000000 {
+			return convert(num/1000) + "ezer-" + convert(int(num%1000))
+		}
+
+		if num < 1000000000 {
+			return convert(num/1000000) + "millió-" + convert(int(num%1000000))
+		}
+
+		return convert(num/1000000000) + "milliárd-" + convert(int(num%1000000000))
 	}
-
-	if num < 0 {
-		return "minus " + convert(-num)
-	}
-
-	if num < 30 {
-		return egyes[num]
-	}
-
-	if num < 100 {
-		return tizes[num/10] + egyes[int(num%10)]
-	}
-
-	if num < 1000 {
-		return egyes[num/100] + "száz " + convert(int(num%100))
-	}
-
-	if num < 1000000 {
-		return convert(num/1000) + "ezer " + convert(int(num%1000))
-	}
-
-	if num < 1000000000 {
-		return convert(num/1000000) + "millió " + convert(int(num%1000000))
-	}
-
-	return convert(num/1000000000) + "milliárd " + convert(int(num%1000000000))
-
 }
 
 func main() {
