@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -27,55 +28,49 @@ func convert(num int) string {
 	var tizes = map[int]string{
 		1: "", 2: "", 3: "harminc", 4: "negyven", 5: "ötven", 6: "hatvan", 7: "hetven", 8: "nyolcvan", 9: "kilencven",
 	}
-	if num < 2000 {
+	if num < 2000 || num > 2000 && num%1000 == 0 {
 
 		if num < 0 {
 			return "minusz" + convert(-num)
 		}
-
 		if num < 30 {
 			return egyes[num]
 		}
-
 		if num < 100 {
 			return tizes[num/10] + egyes[int(num%10)]
 		}
-
 		if num < 1000 {
 			return egyes[num/100] + "száz" + convert(int(num%100))
 		}
-
 		if num < 1000000 {
 			return convert(num/1000) + "ezer" + convert(int(num%1000))
 		}
-		return ""
+		if num < 1000000000 {
+			return convert(num/1000000) + "millió" + convert(int(num%1000000))
+		}
+
+		return convert(num/1000000000) + "milliárd" + convert(int(num%1000000000))
 
 	} else {
 
 		if num < 0 {
 			return "minusz " + convert(-num)
 		}
-
 		if num < 30 {
 			return egyes[num]
 		}
-
 		if num < 100 {
 			return tizes[num/10] + egyes[int(num%10)]
 		}
-
 		if num < 1000 {
 			return egyes[num/100] + "száz-" + convert(int(num%100))
 		}
-
 		if num < 1000000 {
 			return convert(num/1000) + "ezer-" + convert(int(num%1000))
 		}
-
 		if num < 1000000000 {
 			return convert(num/1000000) + "millió-" + convert(int(num%1000000))
 		}
-
 		return convert(num/1000000000) + "milliárd-" + convert(int(num%1000000000))
 	}
 }
@@ -128,6 +123,7 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
+
 	http.HandleFunc("/hello", helloHandler)
 	go func() { log.Panic(http.ListenAndServe(":8080", nil)) }()
 
@@ -152,10 +148,9 @@ func main() {
 					msg.Text = "Wrong parameter, only numbers as parameters are excepted"
 				} else {
 					if num == 0 {
-						msg.Text = "nulla"
+						msg.Text = "Nulla"
 					} else {
-						convertedNum := convert(num)
-						msg.Text = convertedNum
+						msg.Text = strings.Title(convert(num))
 					}
 				}
 
