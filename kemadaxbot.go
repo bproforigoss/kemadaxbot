@@ -30,9 +30,6 @@ func convert(num int) string {
 	}
 	if num < 2000 || num > 2000 && num%1000 == 0 {
 
-		if num < 0 {
-			return "mínusz " + convert(-num)
-		}
 		if num < 30 {
 			return egyes[num]
 		}
@@ -53,9 +50,6 @@ func convert(num int) string {
 
 	} else {
 
-		if num < 0 {
-			return "mínusz " + convert(-num)
-		}
 		if num < 30 {
 			return egyes[num]
 		}
@@ -145,13 +139,18 @@ func main() {
 				num, err := strconv.Atoi(arg)
 				if err != nil {
 					log.Debug("/convert command parameter is not number")
-					msg.Text = "Wrong parameter, only numbers as parameters are excepted"
+					msg.Text = "Wrong parameter, only positive whole number is excepted as parameter"
 				} else {
 					if num == 0 {
 						msg.Text = "Nulla"
 					} else {
+						var replacer1 = strings.NewReplacer("-", ",")
+						var replacer2 = strings.NewReplacer(",", "-")
 						converetedNum := convert(num)
-						msg.Text = strings.Title(converetedNum)
+						converetedNum = replacer1.Replace(converetedNum)
+						converetedNum = strings.Title(converetedNum)
+						converetedNum = replacer2.Replace(converetedNum)
+						msg.Text = converetedNum
 					}
 				}
 
