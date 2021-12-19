@@ -28,9 +28,6 @@ func convert(num int) string {
 		1: "", 2: "", 3: "harminc", 4: "negyven", 5: "ötven", 6: "hatvan", 7: "hetven", 8: "nyolcvan", 9: "kilencven",
 	}
 	if num < 2000 {
-		if num == 0 {
-			return "nulla"
-		}
 
 		if num < 0 {
 			return "minusz" + convert(-num)
@@ -54,9 +51,6 @@ func convert(num int) string {
 		return ""
 
 	} else {
-		if num == 0 {
-			return "nulla"
-		}
 
 		if num < 0 {
 			return "minusz " + convert(-num)
@@ -94,6 +88,7 @@ func main() {
 	} else {
 		log.SetLevel(log.WarnLevel)
 	}
+
 	purl := os.Getenv("PUBLIC_URL")
 	token := os.Getenv("API_TOKEN")
 
@@ -156,8 +151,12 @@ func main() {
 					log.Debug("/convert command parameter is not number")
 					msg.Text = "Wrong parameter, only numbers as parameters are excepted"
 				} else {
-					convertedNum := convert(num)
-					msg.Text = convertedNum
+					if num == 0 {
+						msg.Text = "nulla"
+					} else {
+						convertedNum := convert(num)
+						msg.Text = convertedNum
+					}
 				}
 
 			case "ping":
