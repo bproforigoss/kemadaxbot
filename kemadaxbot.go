@@ -144,13 +144,13 @@ func main() {
 					if num == 0 {
 						msg.Text = "Nulla"
 					} else {
-						var replacer1 = strings.NewReplacer("-", ",")
-						var replacer2 = strings.NewReplacer(",", "-")
-						converetedNum := convert(num)
-						converetedNum = replacer1.Replace(converetedNum)
-						converetedNum = strings.Title(converetedNum)
-						converetedNum = replacer2.Replace(converetedNum)
-						msg.Text = converetedNum
+						convertedNum := convert(num)
+						convertedNumFirst := convertedNum[:1]
+						convertedNumRest := convertedNum[1:]
+						convertedNumFirst = strings.Title(convertedNumFirst)
+						convertedNum = convertedNumFirst + convertedNumRest
+
+						msg.Text = convertedNum
 					}
 				}
 
