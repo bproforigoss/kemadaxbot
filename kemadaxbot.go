@@ -18,6 +18,33 @@ func init() {
 	log.SetOutput(os.Stdout)
 
 }
+func IsPrime(num int) bool {
+	if num < 2 {
+		return false
+	}
+	for i := 2; i < num; i++ {
+		if num%i == 0 {
+			return false
+		}
+	}
+	return true
+}
+func primeFactors(num int) []int {
+	s := make([]int, 0)
+
+	for i := 2; i < num; i++ {
+
+		if IsPrime(i) && num > 1 {
+			for num%i == 0 {
+				s = append(s, i)
+				num = num / i
+
+			}
+		}
+
+	}
+	return s
+}
 func convert(num int) string {
 
 	var egyes = map[int]string{
@@ -132,14 +159,14 @@ func main() {
 		if update.Message.IsCommand() {
 
 			switch update.Message.Command() {
-			case "convert":
+			case "Convert":
 				log.Debug("Converting number to text")
 				arg := update.Message.CommandArguments()
 
 				num, err := strconv.Atoi(arg)
 				if err != nil {
-					log.Debug("/convert command parameter is not number")
-					msg.Text = "Wrong parameter, only positive whole number is excepted as parameter"
+					log.Debug("/Convert command parameter is not number")
+					msg.Text = "Wrong parameter, only positive whole number is accepted as parameter"
 				} else {
 					if num == 0 {
 						msg.Text = "Nulla"
@@ -153,8 +180,23 @@ func main() {
 						msg.Text = convertedNum
 					}
 				}
+			case "PrimeFactorization":
+				log.Debug("Prime factorization request")
+				arg := update.Message.CommandArguments()
 
-			case "ping":
+				num, err := strconv.Atoi(arg)
+				if err != nil || num < 2 {
+					log.Debug("/PrimeFactorization command parameter is not number or parameter is less than 2")
+					msg.Text = "Wrong parameter, only positive whole number which is greater than 2, accepted as parameter"
+				} else {
+					if IsPrime(num) {
+						msg.Text = fmt.Sprint(num) + " is a prime"
+					} else {
+						msg.Text = "Prime factors: " + fmt.Sprint(primeFactors(num))
+					}
+				}
+
+			case "Ping":
 				log.Debug("Responding pong, to /ping command")
 				msg.Text = "pong"
 			default:
