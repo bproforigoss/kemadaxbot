@@ -231,7 +231,7 @@ func main() {
 						msg.Text = fmt.Sprint(num) + " is a prime"
 					} else {
 						n, s := primeFactors(num)
-						msg.Text = "Prime factors: " + fmt.Sprint(n) + "\n" + s
+						msg.Text = "Prime factors: " + fmt.Sprint("%v,", n) + "\n" + s
 					}
 				}
 
