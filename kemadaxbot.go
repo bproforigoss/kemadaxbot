@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -18,6 +20,15 @@ func init() {
 	log.SetOutput(os.Stdout)
 
 }
+func CountDigits(i int) int {
+	count := 0
+	for i > 0 {
+		i = i / 10
+		count += 1
+	}
+
+	return count
+}
 func IsPrime(num int) bool {
 	if num < 2 {
 		return false
@@ -29,21 +40,48 @@ func IsPrime(num int) bool {
 	}
 	return true
 }
-func primeFactors(num int) []int {
-	s := make([]int, 0)
-
+func primeFactors(num int) ([]int, string) {
+	factors := make([]int, 0)
+	var s string
+	offset := ""
+	numDigits := CountDigits(num)
 	for i := 2; i < num; i++ {
 
 		if IsPrime(i) && num > 1 {
 			for num%i == 0 {
-				s = append(s, i)
-				num = num / i
+				factors = append(factors, i)
+				if CountDigits(num) < numDigits {
+					numDigits = CountDigits(num)
+					offset += " "
+					s += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
+					num = num / i
 
+				} else {
+					s += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
+					num = num / i
+				}
 			}
+
 		}
 
 	}
-	return s
+	s += offset + fmt.Sprint(1) + "|"
+	return factors, s
+}
+func generateBigPrime() int {
+	min := 100000000000000000
+	max := 1000000000000000000
+	rand.Seed(time.Now().UnixNano())
+	randint := rand.Intn(max-min+1) + min
+	for i := randint; i > 2; i-- {
+
+		if IsPrime(i) {
+			return i
+		}
+
+	}
+	return 0
+
 }
 func convert(num int) string {
 
@@ -192,7 +230,8 @@ func main() {
 					if IsPrime(num) {
 						msg.Text = fmt.Sprint(num) + " is a prime"
 					} else {
-						msg.Text = "Prime factors: " + fmt.Sprint(primeFactors(num))
+						n, s := primeFactors(num)
+						msg.Text = "Prime factors: " + fmt.Sprint(n) + "\n" + s
 					}
 				}
 
