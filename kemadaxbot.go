@@ -204,6 +204,8 @@ func main() {
 				if err != nil {
 					log.Debug("/Convert command parameter is not number")
 					msg.Text = "Wrong parameter, only positive whole number is accepted as parameter"
+				} else if num > 999999999999 {
+					msg.Text = "Wrong parameter, only number less than 999.999.999.999 is accepted"
 				} else {
 					if num == 0 {
 						msg.Text = "Nulla"
