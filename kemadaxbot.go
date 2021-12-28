@@ -231,7 +231,7 @@ func main() {
 					} else {
 						factor, factorTree := primeFactors(num)
 						factorJoin := strings.Join(factor, ", ")
-						msg.Text = factorJoin + "\n" + factorTree
+						msg.Text = "Prime factors: " + factorJoin + "\n" + "Factor tree:" + "\n" + factorTree
 					}
 				}
 
