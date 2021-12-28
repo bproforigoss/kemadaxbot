@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -40,24 +38,24 @@ func IsPrime(num int) bool {
 	}
 	return true
 }
-func primeFactors(num int) ([]int, string) {
-	factors := make([]int, 0)
-	var s string
+func primeFactors(num int) ([]string, []string) {
+	factors := make([]string, 0)
+	factorTree := make([]string, 0)
 	offset := ""
 	numDigits := CountDigits(num)
 	for i := 2; i < num; i++ {
 
 		if IsPrime(i) && num > 1 {
 			for num%i == 0 {
-				factors = append(factors, i)
+				factors = append(factors, fmt.Sprint(i))
 				if CountDigits(num) < numDigits {
 					numDigits = CountDigits(num)
 					offset += " "
-					s += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
+					factorTree = append(factorTree, offset+fmt.Sprint(num)+"|"+fmt.Sprint(i))
 					num = num / i
 
 				} else {
-					s += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
+					factorTree = append(factorTree, offset+fmt.Sprint(num)+"|"+fmt.Sprint(i))
 					num = num / i
 				}
 			}
@@ -65,10 +63,11 @@ func primeFactors(num int) ([]int, string) {
 		}
 
 	}
-	s += offset + fmt.Sprint(1) + "|"
-	return factors, s
+	factorTree = append(factorTree, offset+fmt.Sprint(num)+"|")
+	return factors, factorTree
 }
-func generateBigPrime() int {
+
+/*func generateBigPrime() int {
 	min := 100000000000000000
 	max := 1000000000000000000
 	rand.Seed(time.Now().UnixNano())
@@ -82,7 +81,7 @@ func generateBigPrime() int {
 	}
 	return 0
 
-}
+}*/
 func convert(num int) string {
 
 	var egyes = map[int]string{
@@ -230,8 +229,10 @@ func main() {
 					if IsPrime(num) {
 						msg.Text = fmt.Sprint(num) + " is a prime"
 					} else {
-						n, s := primeFactors(num)
-						msg.Text = "Prime factors: " + fmt.Sprint("%v,", n) + "\n" + s
+						factor, factorTree := primeFactors(num)
+						result1 := strings.Join(factor, ",")
+						result2 := strings.Join(factorTree, "\n")
+						msg.Text = "Prime factors: " + result1 + result2
 					}
 				}
 
