@@ -38,9 +38,9 @@ func IsPrime(num int) bool {
 	}
 	return true
 }
-func primeFactors(num int) ([]string, []string) {
+func primeFactors(num int) ([]string, string) {
 	factors := make([]string, 0)
-	factorTree := make([]string, 0)
+	var factorTree string
 	offset := ""
 	numDigits := CountDigits(num)
 	for i := 2; i < num; i++ {
@@ -50,12 +50,12 @@ func primeFactors(num int) ([]string, []string) {
 				factors = append(factors, fmt.Sprint(i))
 				if CountDigits(num) < numDigits {
 					numDigits = CountDigits(num)
-					offset += " "
-					factorTree = append(factorTree, offset+fmt.Sprint(num)+"|"+fmt.Sprint(i))
+					offset += "\t"
+					factorTree += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
 					num = num / i
 
 				} else {
-					factorTree = append(factorTree, offset+fmt.Sprint(num)+"|"+fmt.Sprint(i))
+					factorTree += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
 					num = num / i
 				}
 			}
@@ -63,7 +63,7 @@ func primeFactors(num int) ([]string, []string) {
 		}
 
 	}
-	factorTree = append(factorTree, offset+fmt.Sprint(num)+"|")
+	factorTree += offset + fmt.Sprint(num) + "|"
 	return factors, factorTree
 }
 
@@ -230,9 +230,8 @@ func main() {
 						msg.Text = fmt.Sprint(num) + " is a prime"
 					} else {
 						factor, factorTree := primeFactors(num)
-						result1 := strings.Join(factor, ",")
-						result2 := strings.Join(factorTree, "\n")
-						msg.Text = "Prime factors: " + result1 + result2
+						factorJoin := strings.Join(factor, ", ")
+						msg.Text = factorJoin + "\n" + factorTree
 					}
 				}
 
