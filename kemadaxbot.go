@@ -41,6 +41,7 @@ func IsPrime(num int) bool {
 func primeFactors(num int) ([]string, string) {
 	factors := make([]string, 0)
 	var factorTree string
+	beginning := "."
 	offset := ""
 	numDigits := CountDigits(num)
 	for i := 2; i < num; i++ {
@@ -50,12 +51,12 @@ func primeFactors(num int) ([]string, string) {
 				factors = append(factors, fmt.Sprint(i))
 				if CountDigits(num) < numDigits {
 					numDigits = CountDigits(num)
-					offset += "\t"
-					factorTree += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
+					offset += " "
+					factorTree += beginning + offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
 					num = num / i
 
 				} else {
-					factorTree += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
+					factorTree += beginning + offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
 					num = num / i
 				}
 			}
@@ -63,7 +64,7 @@ func primeFactors(num int) ([]string, string) {
 		}
 
 	}
-	factorTree += offset + fmt.Sprint(num) + "|"
+	factorTree += beginning + offset + fmt.Sprint(num) + "|"
 	return factors, factorTree
 }
 
