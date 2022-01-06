@@ -191,7 +191,7 @@ func main() {
 
 		if !update.Message.IsCommand() {
 			log.Debug("Answering Hey by default")
-			msg.Text = "Hey Buddy"
+			msg.Text = "Hey Buddy\nAvailable commands are th following:\n/Convert + (positive whole number as parameter, number< 999 999 999 999) Converting number into words. \nPrimeFactorization + (positive whole number which is greater than 2, accepted as parameter)"
 		}
 		if update.Message.IsCommand() {
 
