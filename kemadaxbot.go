@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -68,8 +70,8 @@ func primeFactors(num int) ([]string, string) {
 }
 
 func generateBigPrime() int {
-	min := 100000000000000000
-	max := 1000000000000000000
+	min := 10000000000
+	max := 100000000000
 	rand.Seed(time.Now().UnixNano())
 	randint := rand.Intn(max-min+1) + min
 	for i := randint; i > 2; i-- {
