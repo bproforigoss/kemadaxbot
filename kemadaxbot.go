@@ -67,7 +67,7 @@ func primeFactors(num int) ([]string, string) {
 	return factors, factorTree
 }
 
-/*func generateBigPrime() int {
+func generateBigPrime() int {
 	min := 100000000000000000
 	max := 1000000000000000000
 	rand.Seed(time.Now().UnixNano())
@@ -81,7 +81,7 @@ func primeFactors(num int) ([]string, string) {
 	}
 	return 0
 
-}*/
+}
 func convert(num int) string {
 
 	var egyes = map[int]string{
