@@ -20,6 +20,44 @@ func init() {
 	log.SetOutput(os.Stdout)
 
 }
+
+type primePair struct {
+	factor    int
+	remainder int
+}
+type factorizedInt []primePair
+
+func (f factorizedInt) factorsWithCommas() string {
+	factors := ""
+	for i := 0; i < len(f); i++ {
+		factors += fmt.Sprint(f[i].factor) + ", "
+	}
+	return factors[:len(factors)-2]
+}
+func (f factorizedInt) factorTree() string {
+	factorTree := ""
+	offset := ""
+	numDigits := CountDigits(f[0].remainder)
+
+	for i := 0; i < len(f); i++ {
+		if CountDigits(f[i].remainder) < numDigits {
+			numDigits = CountDigits(f[i].remainder)
+			offset += "  "
+			factorTree += offset + fmt.Sprint(f[i].remainder) + "|" + fmt.Sprint(f[i].factor) + "\n"
+		} else {
+			factorTree += offset + fmt.Sprint(f[i].remainder) + "|" + fmt.Sprint(f[i].factor) + "\n"
+		}
+
+	}
+	lastRemainder := f[len(f)-1].remainder / f[len(f)-1].factor
+	if CountDigits(lastRemainder) < CountDigits(f[len(f)-1].remainder) {
+		offset += "  "
+
+	}
+	factorTree += offset + fmt.Sprint(lastRemainder) + "|"
+
+	return factorTree
+}
 func CountDigits(i int) int {
 	count := 0
 	for i > 0 {
@@ -40,38 +78,26 @@ func IsPrime(num int) bool {
 	}
 	return true
 }
-func primeFactors(num int) ([]string, string) {
-	factors := make([]string, 0)
-	var factorTree string
-	offset := ""
-	numDigits := CountDigits(num)
+func primeFactorization(num int) factorizedInt {
+	f := factorizedInt{}
 	for i := 2; i < num; i++ {
 
 		if IsPrime(i) && num > 1 {
 			for num%i == 0 {
-				factors = append(factors, fmt.Sprint(i))
-				if CountDigits(num) < numDigits {
-					numDigits = CountDigits(num)
-					offset += "  "
-					factorTree += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
-					num = num / i
+				pair := primePair{i, num}
+				f = append(f, pair)
 
-				} else {
-					factorTree += offset + fmt.Sprint(num) + "|" + fmt.Sprint(i) + "\n"
-					num = num / i
-				}
+				num = num / i
 			}
 
 		}
 
 	}
-	factorTree += offset + fmt.Sprint(num) + "|"
-	return factors, factorTree
+	return f
 }
-
 func generateBigPrime() int {
-	min := 10000000000
-	max := 100000000000
+	min := 100000000
+	max := 1000000000
 	rand.Seed(time.Now().UnixNano())
 	randint := rand.Intn(max-min+1) + min
 	for i := randint; i > 2; i-- {
@@ -100,19 +126,19 @@ func convert(num int) string {
 			return egyes[num]
 		}
 		if num < 100 {
-			return tizes[num/10] + egyes[int(num%10)]
+			return tizes[num/10] + egyes[num%10]
 		}
 		if num < 1000 {
-			return egyes[num/100] + "száz" + convert(int(num%100))
+			return egyes[num/100] + "száz" + convert(num%100)
 		}
 		if num < 1000000 {
-			return convert(num/1000) + "ezer" + convert(int(num%1000))
+			return convert(num/1000) + "ezer" + convert(num%1000)
 		}
 		if num < 1000000000 {
-			return convert(num/1000000) + "millió" + convert(int(num%1000000))
+			return convert(num/1000000) + "millió" + convert(num%1000000)
 		}
 
-		return convert(num/1000000000) + "milliárd" + convert(int(num%1000000000))
+		return convert(num/1000000000) + "milliárd" + convert(num%1000000000)
 
 	} else {
 
@@ -120,18 +146,18 @@ func convert(num int) string {
 			return egyes[num]
 		}
 		if num < 100 {
-			return tizes[num/10] + egyes[int(num%10)]
+			return tizes[num/10] + egyes[num%10]
 		}
 		if num < 1000 {
-			return egyes[num/100] + "száz-" + convert(int(num%100))
+			return egyes[num/100] + "száz-" + convert(num%100)
 		}
 		if num < 1000000 {
-			return convert(num/1000) + "ezer-" + convert(int(num%1000))
+			return convert(num/1000) + "ezer-" + convert(num%1000)
 		}
 		if num < 1000000000 {
-			return convert(num/1000000) + "millió-" + convert(int(num%1000000))
+			return convert(num/1000000) + "millió-" + convert(num%1000000)
 		}
-		return convert(num/1000000000) + "milliárd-" + convert(int(num%1000000000))
+		return convert(num/1000000000) + "milliárd-" + convert(num%1000000000)
 	}
 }
 
@@ -233,12 +259,13 @@ func main() {
 					if IsPrime(num) {
 						msg.Text = fmt.Sprint(num) + " is a prime"
 					} else {
-						factor, factorTree := primeFactors(num)
-						factorJoin := strings.Join(factor, ", ")
-						msg.Text = "Prime factors: " + factorJoin + "\n" + "Factor tree:" + "\n" + factorTree
+						result := primeFactorization(num)
+						msg.Text = "Prime factors: " + result.factorsWithCommas() + "\n" + "Factor tree:" + "\n" + result.factorTree()
 					}
 				}
-
+			case "GenerateBigPrime":
+				log.Debug("Responding pong,to GenerateBigPrime command")
+				msg.Text = fmt.Sprint(generateBigPrime())
 			case "Ping":
 				log.Debug("Responding pong, to /ping command")
 				msg.Text = "pong"

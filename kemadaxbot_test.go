@@ -6,17 +6,18 @@ import (
 
 func TestPrimeFactorization(t *testing.T) {
 
-	got, _ := primeFactors(600000000)
-	want := []string{"2", "2", "2", "2", "2", "2", "2", "2", "2", "3", "5", "5", "5", "5", "5", "5", "5", "5"}
+	got1 := primeFactorization(3884)
+	got2 := primeFactorization(100)
+	want1 := "2, 2"
+	want2 := "2, 2, 5, 5"
 
-	if len(got) != len(want) {
-		t.Errorf("got %q, wanted %q", got, want)
+	if got1.factorsWithCommas() != want1 {
+		t.Errorf("got %q, wanted %q", got1.factorsWithCommas(), want1)
 	}
-	for i := range got {
-		if got[i] != want[i] {
-			t.Errorf("got %q, wanted %q", got, want)
-		}
+	if got2.factorsWithCommas() != want2 {
+		t.Errorf("got %q, wanted %q", got2.factorsWithCommas(), want2)
 	}
+
 }
 
 type IsPrimeTest struct {
@@ -40,19 +41,31 @@ func TestIsPrime(t *testing.T) {
 	}
 }
 
+type convertTest struct {
+	number   int
+	expected string
+}
+
+var convertTests = []convertTest{
+	convertTest{1, "egy"},
+	convertTest{1999, "egyezerkilencszázkilencvenkilenc"},
+	convertTest{516784, "ötszáztizenhatezer-hétszáznyolcvannégy"},
+	convertTest{1111111111, "egymilliárd-egyszáztizenegymillió-egyszáztizenegyezer-egyszáztizenegy"},
+}
+
 func TestConvert(t *testing.T) {
-
-	got := convert(57412)
-	want := "ötvenhétezer-négyszáztizenkettő"
-
-	if got != want {
-		t.Errorf("got %q, wanted %q", got, want)
+	for _, test := range convertTests {
+		if output := convert(test.number); output != test.expected {
+			t.Errorf("Output %v not equal to expected %v", output, test.expected)
+		}
 	}
+
 }
 
 func BenchmarkPrimeFactors(b *testing.B) {
-	primeFactors(100)
+	primeFactorization(100)
 }
 func BenchmarkGenerateBigprime(b *testing.B) {
 	generateBigPrime()
 }
+

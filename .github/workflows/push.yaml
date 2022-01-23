@@ -36,7 +36,7 @@ jobs:
         go-version: 1.17
 
     - name: Test
-      run: go test
+      run: go test -bench=. -v
   
   docker:
     runs-on: ubuntu-latest
