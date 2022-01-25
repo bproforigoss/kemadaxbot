@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -161,6 +163,10 @@ func convert(num int) string {
 	}
 }
 
+type sendMessageReqBody struct {
+	Ref string `json:"ref"`
+}
+
 func main() {
 
 	if len(os.Args) > 1 && os.Args[1] == "-v" {
@@ -266,6 +272,27 @@ func main() {
 			case "GenerateBigPrime":
 				log.Debug("Responding pong,to GenerateBigPrime command")
 				msg.Text = fmt.Sprint(generateBigPrime())
+			case "ReDeploy":
+				log.Debug("Responding pong,to GenerateBigPrime command")
+				url := "https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/deploy.yaml/dispatches"
+
+				reqBody := &sendMessageReqBody{
+					Ref: "main",
+				}
+				reqBytes, err := json.Marshal(reqBody)
+				if err != nil {
+					log.WithError(err).Warn("Marshal failed")
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				resp, err := http.Post(url, "application/vnd.github.v3+json", bytes.NewBuffer(reqBytes))
+				if err != nil {
+					log.WithError(err).Warn("Bye handler failed while writing response")
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+				log.Debug(resp.Status)
+				defer resp.Body.Close()
 			case "Ping":
 				log.Debug("Responding pong, to /ping command")
 				msg.Text = "pong"
