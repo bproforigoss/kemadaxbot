@@ -63,4 +63,4 @@ jobs:
           cd ../../../
           echo -n 'API_TOKEN=${{secrets.telegram_token}}' > kubernetes/chatbot-app/base/secret/chatbot.secret
           echo -n 'PAT=${{secrets.REPO_DISPATCH_PAT}}' > kubernetes/chatbot-app/base/secret/chatbot.secret
-          kubectl apply -k kubernetes/chatbot-app/overlays/production/
+          kubectl apply -k kubernetes/chatbot-app/overlays/development/

@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -160,11 +163,32 @@ func convert(num int) string {
 		return convert(num/1000000000) + "milliárd-" + convert(num%1000000000)
 	}
 }
+func deploy(URL string, PAT string) {
 
-type sendMessageReqBody struct {
-	Ref string `json:"ref"`
+	encoded := base64.StdEncoding.EncodeToString([]byte(PAT))
+
+	client := &http.Client{}
+
+	jsonBody := `{"ref":"main"}`
+	var jsonStr = []byte(jsonBody)
+	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(jsonStr))
+	r.Header.Set("Content-type", "application/vnd.github.v3+json")
+	r.Header.Set("Authorization", fmt.Sprintf("Basic %s", encoded))
+
+	resp, err := client.Do(r)
+	if err != nil {
+		log.WithError(err).Fatal("Something wrong while sending request to GitHub API")
+	}
+
+	defer resp.Body.Close()
+
+	log.Debug(" GitHub API's HTTP response StatusCode" + fmt.Sprint(resp.StatusCode))
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil && body == nil {
+		panic(err)
+	}
 }
-
 func main() {
 
 	if len(os.Args) > 1 && os.Args[1] == "-v" {
@@ -176,6 +200,7 @@ func main() {
 
 	purl := os.Getenv("PUBLIC_URL")
 	token := os.Getenv("API_TOKEN")
+	pat := os.Getenv("PAT")
 
 	webHookURL := tgbotapi.NewWebhook(purl)
 
@@ -251,6 +276,7 @@ func main() {
 						msg.Text = convertedNum
 					}
 				}
+
 			case "PrimeFactorization":
 				log.Debug("Prime factorization request")
 				arg := update.Message.CommandArguments()
@@ -267,11 +293,16 @@ func main() {
 						msg.Text = "Prime factors: " + result.factorsWithCommas() + "\n" + "Factor tree:" + "\n" + result.factorTree()
 					}
 				}
+
 			case "GenerateBigPrime":
 				log.Debug("Responding pong,to GenerateBigPrime command")
 				msg.Text = fmt.Sprint(generateBigPrime())
-			case "ReDeploy":
-				msg.Text = "I don't know that command"
+
+			case "Deploy":
+				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy.yaml/dispatches", pat)
+
+			case "Deploy_debug":
+				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat)
 
 			case "Ping":
 				log.Debug("Responding pong, to /ping command")
