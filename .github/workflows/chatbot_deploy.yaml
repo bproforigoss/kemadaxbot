@@ -61,6 +61,5 @@ jobs:
           cd kubernetes/chatbot-app/base/
           kustomize edit set image kemadax="ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}"
           cd ../../../
-          echo -n 'API_TOKEN=${{secrets.telegram_token}} 
-          PAT=${{secrets.REPO_DISPATCH_PAT}}' > kubernetes/chatbot-app/base/secret/chatbot.secret
+          echo -e 'API_TOKEN=${{secrets.telegram_token}}\nPAT=${{secrets.REPO_DISPATCH_PAT}}' > kubernetes/chatbot-app/base/secret/chatbot.secret
           kubectl apply -k kubernetes/chatbot-app/overlays/production/
