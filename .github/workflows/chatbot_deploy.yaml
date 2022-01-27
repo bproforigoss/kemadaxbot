@@ -57,9 +57,9 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{secrets.KUBE_CONFIG}}
           
-      - name: Set up age
-        - uses: adnsio/setup-age-action@v1.1.0
-        - run: age --version
+     
+      - uses: adnsio/setup-age-action@v1.1.0
+      - run: age --version
         
       - name: Decryption 
         run: |
