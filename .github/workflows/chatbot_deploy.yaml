@@ -1,4 +1,4 @@
-name: Deploy_by_cahtbot
+name: Deploy_by_chatbot
 
 on: workflow_dispatch
 
@@ -63,7 +63,6 @@ jobs:
         
       - name: Decryption 
         run: |
-          go install filippo.io/age/cmd/...@latest
           echo "$AGE_KEY" > key.txt
           age -d -i key.txt -o kubernetes/chatbot-app/base/secret/chatbot.secret kubernetes/chatbot-app/base/secret/chatbot.secret.age
   

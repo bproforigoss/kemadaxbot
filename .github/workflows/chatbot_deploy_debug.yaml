@@ -1,4 +1,4 @@
-name: Deploy_debug_by_cahtbot
+name: Deploy_debug_by_chatbot
 
 on: workflow_dispatch
 
