@@ -5,6 +5,7 @@ on: workflow_dispatch
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  AGE_KEY: ${{ secrets.AGE_KEY }}
              
 jobs:
   docker:
@@ -56,9 +57,13 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{secrets.KUBE_CONFIG}}
           
+      - name: Set up age
+        - uses: adnsio/setup-age-action@v1.1.0
+        - run: age --version
+        
       - name: Decryption 
         run: |
-          sudo apt install age
+          go install filippo.io/age/cmd/...@latest
           echo "$AGE_KEY" > key.txt
           age -d -i key.txt -o kubernetes/chatbot-app/base/secret/chatbot.secret kubernetes/chatbot-app/base/secret/chatbot.secret.age
   
