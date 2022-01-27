@@ -1,10 +1,11 @@
-name: Deploy
+name: Deploy_debug_by_cahtbot
 
 on: workflow_dispatch
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  AGE_KEY: ${{ secrets.AGE_KEY }}
              
 jobs:
   docker:
@@ -56,10 +57,19 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{secrets.KUBE_CONFIG}}
           
+     
+      - uses: adnsio/setup-age-action@v1.1.0
+      - run: age --version
+        
+      - name: Decryption 
+        run: |
+          echo "$AGE_KEY" > key.txt
+          age -d -i key.txt -o kubernetes/chatbot-app/base/secret/chatbot.secret kubernetes/chatbot-app/base/secret/chatbot.secret.age
+  
+          
       - name: Deploy to Cluster
         run: |
           cd kubernetes/chatbot-app/base/
           kustomize edit set image kemadax="ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}"
           cd ../../../
-          echo -e 'API_TOKEN=${{secrets.telegram_token}}\nPAT=${{secrets.REPO_DISPATCH_PAT}}' > kubernetes/chatbot-app/base/secret/chatbot.secret
           kubectl apply -k kubernetes/chatbot-app/overlays/development/
