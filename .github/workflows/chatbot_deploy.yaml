@@ -1,6 +1,11 @@
 name: Deploy_by_chatbot
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    inputs:
+      chatID:
+        description: 'Telegram chatID'     
+        required: true
 
 env:
   REGISTRY: ghcr.io

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -163,15 +164,37 @@ func convert(num int) string {
 		return convert(num/1000000000) + "milliárd-" + convert(num%1000000000)
 	}
 }
-func deploy(URL string, PAT string) {
 
+type Inputs struct {
+	ChatID int64 `json:"ChatID"`
+}
+type RequestToGithub struct {
+	Ref    string `json:"ref"`
+	Inputs Inputs `json:"inputs"`
+}
+
+func deploy(URL string, PAT string, chatid int64) {
 	encoded := base64.StdEncoding.EncodeToString([]byte(PAT))
 
 	client := &http.Client{}
 
-	jsonBody := `{"ref":"main"}`
-	var jsonStr = []byte(jsonBody)
-	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(jsonStr))
+	/*jsonBody := `{"ref":"main",
+	                   "inputs": {
+	                      "chatID": chatID
+	                      }
+	              }'}`
+		var jsonStr = []byte(jsonBody)*/
+	reqBody := RequestToGithub{
+		Ref:    "Test",
+		Inputs: Inputs{ChatID: chatid},
+	}
+
+	reqBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		log.WithError(err).Warn("Marshal failed")
+		return
+	}
+	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
 	r.Header.Set("Content-type", "application/vnd.github.v3+json")
 	r.Header.Set("Authorization", fmt.Sprintf("Basic %s", encoded))
 
@@ -183,12 +206,16 @@ func deploy(URL string, PAT string) {
 	defer resp.Body.Close()
 
 	log.Debug(" GitHub API's HTTP response StatusCode" + fmt.Sprint(resp.StatusCode))
-
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil && body == nil {
 		panic(err)
 	}
 }
+
+type MessageFromGitHub struct {
+	ChatID int64 `json:"chat_id"`
+}
+
 func main() {
 
 	if len(os.Args) > 1 && os.Args[1] == "-v" {
@@ -238,8 +265,24 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
+	responseAPIHandler := func(w http.ResponseWriter, req *http.Request) {
+		update := MessageFromGitHub{}
+		log.Debug("Request from GitHub")
+		body, _ := ioutil.ReadAll(req.Body)
+		err = json.Unmarshal(body, &update)
+		if err != nil {
+			log.WithError(err).Warn("Unmarshal failed")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		msg := tgbotapi.NewMessage(update.ChatID, "Deploy to kubernetes cluster completed")
+		if _, err := bot.Send(msg); err != nil {
+			log.Panic(err)
+		}
+	}
 
 	http.HandleFunc("/hello", helloHandler)
+	http.HandleFunc("/responseAPI", responseAPIHandler)
 	go func() { log.Panic(http.ListenAndServe(":8080", nil)) }()
 
 	for update := range updates {
@@ -299,10 +342,10 @@ func main() {
 				msg.Text = fmt.Sprint(generateBigPrime())
 
 			case "Deploy":
-				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy.yaml/dispatches", pat)
+				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy.yaml/dispatches", pat, update.Message.Chat.ID)
 
 			case "Deploy_debug":
-				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat)
+				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, update.Message.Chat.ID)
 
 			case "Ping":
 				log.Debug("Responding pong, to /ping command")
