@@ -71,7 +71,7 @@ jobs:
 
         
       - name: Decryption 
-        run: |S
+        run: |
           echo "$AGE_KEY" > keys.txt
           sops -d  kubernetes/chatbot-app/base/secret/chatbot.enc.env > kubernetes/chatbot-app/base/secret/chatbot.secret
   
