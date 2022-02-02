@@ -166,7 +166,7 @@ func convert(num int) string {
 }
 
 type Inputs struct {
-	ChatID int64 `json:"ChatID"`
+	ChatID int64 `json:"chatID"`
 }
 type RequestToGithub struct {
 	Ref    string `json:"ref"`

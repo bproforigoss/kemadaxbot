@@ -62,14 +62,18 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{secrets.KUBE_CONFIG}}
           
-     
-      - uses: adnsio/setup-age-action@v1.1.0
-      - run: age --version
+
+          
+      - name: Set up Mozilla SOPS 
+        run: |
+          wget https://github.com/mozilla/sops/releases/download/v3.7.1/sops_3.7.1_amd64.deb
+          sudo dpkg -i sops_3.7.1_amd64.deb
+
         
       - name: Decryption 
         run: |
-          echo "$AGE_KEY" > key.txt
-          age -d -i key.txt -o kubernetes/chatbot-app/base/secret/chatbot.secret kubernetes/chatbot-app/base/secret/chatbot.secret.age
+          echo "$AGE_KEY" > XDG_CONFIG_HOME/sops/keys.txt
+          sops -d  kubernetes/chatbot-app/base/secret/chatbot.enc.env > kubernetes/chatbot-app/base/secret/chatbot.secret
   
           
       - name: Deploy to Cluster
