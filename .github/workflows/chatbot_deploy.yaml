@@ -11,6 +11,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   AGE_KEY: ${{ secrets.AGE_KEY }}
+  SOPS_AGE_KEY_FILE: .config/sops/age
              
 jobs:
   docker:
