@@ -73,8 +73,7 @@ jobs:
       - name: Decryption 
         run: |
           ls -a .
-          mkdir -p home/runner/.config/sops/age/
-          echo "$AGE_KEY" > /home/runner/.config/sops/age/keys.txt
+          echo "$AGE_KEY" > .config/sops/age/keys.txt
           sops -d  kubernetes/chatbot-app/base/secret/chatbot.enc.env > kubernetes/chatbot-app/base/secret/chatbot.secret
   
           
