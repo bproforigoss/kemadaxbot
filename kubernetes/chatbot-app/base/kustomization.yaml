@@ -1,15 +1,17 @@
 resources:
-  - kemadaxbot-service.yaml
-  - kemadaxbot-deployment.yaml
+- kemadaxbot-service.yaml
+- kemadaxbot-deployment.yaml
 images:
 - name: kemadax
   newName: ghcr.io/bproforigoss/kemadaxbot
-  newTag: latest
+  newTag: sha-3f49e60
 configMapGenerator:
-- name: kemadaxbot-configmap
-  envs:
+- envs:
   - env/chatbot.env
+  name: kemadaxbot-configmap
 secretGenerator:
-- name: kemadaxbot-secret
-  envs:
+- envs:
   - secret/chatbot.secret
+  name: kemadaxbot-secret
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
