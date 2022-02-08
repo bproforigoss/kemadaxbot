@@ -88,4 +88,21 @@ jobs:
           git config --global user.email 'kemadax@gmail.com'
           git commit -am "Chatbot deploys"
           git push
+  sending_response_to_chat:
+    runs-on: ubuntu-latest
+    needs: deploy_to_kubernetes_cluster
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+          
+      - name: run chatbot Api
+        run: |
+          curl POST \
+          -H 'Content-Type: application/json' \
+          https://kemadaxbot.bprof.gesz.dev//responseAPI \
+          -d '{"chat_id":"${{github.event.inputs.chatID}}"}'
+          
+          
+          
+
           

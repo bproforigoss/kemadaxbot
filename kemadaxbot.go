@@ -166,34 +166,29 @@ func convert(num int) string {
 }
 
 type Inputs struct {
-	ChatID int64 `json:"chatID"`
+	ChatID string `json:"chatID"`
 }
 type RequestToGithub struct {
 	Ref    string `json:"ref"`
 	Inputs Inputs `json:"inputs"`
 }
 
-func deploy(URL string, PAT string, chatid int64) {
+func deploy(URL string, PAT string, chatid string) {
 	encoded := base64.StdEncoding.EncodeToString([]byte(PAT))
 
 	client := &http.Client{}
 
-	/*jsonBody := `{"ref":"main",
-	                   "inputs": {
-	                      "chatID": chatID
-	                      }
-	              }'}`
-		var jsonStr = []byte(jsonBody)*/
 	reqBody := RequestToGithub{
-		Ref:    "Test",
+		Ref:    "main",
 		Inputs: Inputs{ChatID: chatid},
 	}
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		log.WithError(err).Warn("Marshal failed")
+		log.WithError(err).Warn("Marshal JSON failed")
 		return
 	}
+
 	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
 	r.Header.Set("Content-type", "application/vnd.github.v3+json")
 	r.Header.Set("Authorization", fmt.Sprintf("Basic %s", encoded))
@@ -206,14 +201,17 @@ func deploy(URL string, PAT string, chatid int64) {
 	defer resp.Body.Close()
 
 	log.Debug(" GitHub API's HTTP response StatusCode" + fmt.Sprint(resp.StatusCode))
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil && body == nil {
 		panic(err)
 	}
+
+	log.Debug(" GitHub API's HTTP response body content" + string(json.RawMessage(body)))
 }
 
 type MessageFromGitHub struct {
-	ChatID int64 `json:"chat_id"`
+	ChatID string `json:"chat_id"`
 }
 
 func main() {
@@ -270,12 +268,8 @@ func main() {
 		log.Debug("Request from GitHub")
 		body, _ := ioutil.ReadAll(req.Body)
 		err = json.Unmarshal(body, &update)
-		if err != nil {
-			log.WithError(err).Warn("Unmarshal failed")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		msg := tgbotapi.NewMessage(update.ChatID, "Deploy to kubernetes cluster completed")
+		chatid, _ := strconv.ParseInt(update.ChatID, 10, 64)
+		msg := tgbotapi.NewMessage(chatid, "Deploy to kubernetes cluster completed")
 		if _, err := bot.Send(msg); err != nil {
 			log.Panic(err)
 		}
@@ -342,10 +336,10 @@ func main() {
 				msg.Text = fmt.Sprint(generateBigPrime())
 
 			case "Deploy":
-				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy.yaml/dispatches", pat, update.Message.Chat.ID)
+				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 
 			case "Deploy_debug":
-				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, update.Message.Chat.ID)
+				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 
 			case "Ping":
 				log.Debug("Responding pong, to /ping command")
