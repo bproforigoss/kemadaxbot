@@ -52,6 +52,8 @@ jobs:
           
   sending_response_to_chat:
     runs-on: ubuntu-latest
+    needs: deploy_to_kubernetes_cluster
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -65,7 +67,6 @@ jobs:
 
   deploy_to_kubernetes_cluster:
     runs-on: ubuntu-latest
-    needs: sending_response_to_chat
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
