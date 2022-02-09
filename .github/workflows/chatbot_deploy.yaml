@@ -60,7 +60,7 @@ jobs:
         run: |
           curl POST \
           -H 'Content-Type: application/json' \
-          https://kemadaxbot.bprof.gesz.dev//responseAPI \
+          https://kemadaxbot.bprof.gesz.dev/responseAPI \
           -d '{"chat_id":"${{github.event.inputs.chatID}}"}'  
 
   deploy_to_kubernetes_cluster:
