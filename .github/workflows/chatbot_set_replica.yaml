@@ -54,6 +54,7 @@ jobs:
           
       - name: Set replicas
         run: |
+          cd kubernetes/chatbot-app/base/
           kustomize edit set replicas kemadaxbot-deployment=5
           
           
