@@ -210,6 +210,52 @@ func deploy(URL string, PAT string, chatid string) {
 	log.Debug(" GitHub API's HTTP response body content" + string(json.RawMessage(body)))
 }
 
+type InputsReplicaCount struct {
+	ChatID       string `json:"chatID"`
+	ReplicaCount string `json:"number_of_replicas"`
+}
+type RequestToGithubReplicaCount struct {
+	Ref    string             `json:"ref"`
+	Inputs InputsReplicaCount `json:"inputs"`
+}
+
+func setReplicaCount(URL string, PAT string, chatid string, replicaCount string) {
+	encoded := base64.StdEncoding.EncodeToString([]byte(PAT))
+
+	client := &http.Client{}
+
+	reqBody := RequestToGithubReplicaCount{
+		Ref:    "main",
+		Inputs: InputsReplicaCount{ChatID: chatid, ReplicaCount: replicaCount},
+	}
+
+	reqBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		log.WithError(err).Warn("Marshal JSON failed")
+		return
+	}
+
+	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
+	r.Header.Set("Content-type", "application/vnd.github.v3+json")
+	r.Header.Set("Authorization", fmt.Sprintf("Basic %s", encoded))
+
+	resp, err := client.Do(r)
+	if err != nil {
+		log.WithError(err).Fatal("Something wrong while sending request to GitHub API")
+	}
+
+	defer resp.Body.Close()
+
+	log.Debug(" GitHub API's HTTP response StatusCode" + fmt.Sprint(resp.StatusCode))
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil && body == nil {
+		panic(err)
+	}
+
+	log.Debug(" GitHub API's HTTP response body content" + string(json.RawMessage(body)))
+}
+
 type MessageFromGitHub struct {
 	ChatID string `json:"chat_id"`
 }
@@ -340,6 +386,26 @@ func main() {
 
 			case "Deploy_debug":
 				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
+
+			case "SetReplicaCount":
+				arg := update.Message.CommandArguments()
+
+				num, err := strconv.Atoi(arg)
+				if err != nil || num > 50 {
+					log.Debug("/SetReplicaCount command parameter is not number or it is higher than 50")
+					msg.Text = "Wrong parameter, only positive whole number less than 50 is accepted as parameter"
+				}
+				setReplicaCount("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_set_replica.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID), fmt.Sprint(num))
+
+			case "SetReplicaCount_debug":
+				arg := update.Message.CommandArguments()
+
+				num, err := strconv.Atoi(arg)
+				if err != nil || num > 50 {
+					log.Debug("/SetReplicaCount command parameter is not number or it is higher than 50")
+					msg.Text = "Wrong parameter, only positive whole number less than 50 is accepted as parameter"
+				}
+				setReplicaCount("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_set_replica.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID), fmt.Sprint(num))
 
 			case "Ping":
 				log.Debug("Responding pong, to /ping command")

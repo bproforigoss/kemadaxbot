@@ -1,10 +1,14 @@
 name: set_replica_count_by_chatbot
 
-on: workflow_dispatch
-    #inputs:
-      #chatID:
-        #description: 'Telegram chatID'     
-        #required: true
+on: 
+  workflow_dispatch:
+    inputs:
+      number_of_replicas:
+        description: 'Number of Pods running in Kubernetes Cluster'     
+        required: true
+      chatID:
+        description: 'Telegram chatID'     
+        required: true
 
 env:
   AGE_KEY: ${{ secrets.AGE_KEY }}
@@ -12,22 +16,22 @@ env:
              
 jobs:
           
-  #sending_response_to_chat:
-    #runs-on: ubuntu-latest
-    #needs: deploy_to_kubernetes_cluster
+  sending_response_to_chat:
+    runs-on: ubuntu-latest
+    needs: set_replica_count_to_kubernetes_cluster
     
-    #steps:
-      #- name: Checkout repository
-        #uses: actions/checkout@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
           
-      #- name: run chatbot Api
-        #run: |
-          #curl POST \
-          #-H 'Content-Type: application/json' \
-          #https://kemadaxbot.bprof.gesz.dev/responseAPI \
-          #-d '{"chat_id":"${{github.event.inputs.chatID}}"}'  
+      - name: run chatbot Api
+        run: |
+          curl POST \
+          -H 'Content-Type: application/json' \
+          https://kemadaxbot.bprof.gesz.dev/responseAPI \
+          -d '{"chat_id":"${{github.event.inputs.chatID}}"}'  
 
-  deploy_to_kubernetes_cluster:
+  set_replica_count_to_kubernetes_cluster:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -57,7 +61,12 @@ jobs:
           cd kubernetes/chatbot-app/base/
           kustomize edit set replicas kemadaxbot-deployment=5
           cd ../../../
-          kubectl apply -k kubernetes/chatbot-app/overlays/development/
+          kubectl apply -k kubernetes/chatbot-app/overlays/production/
+          
+          git config --global user.name 'Automated CI/CD Agent'
+          git config --global user.email 'kemadax@gmail.com'
+          git commit -am "Chatbot deploys"
+          git push
           
           
 
