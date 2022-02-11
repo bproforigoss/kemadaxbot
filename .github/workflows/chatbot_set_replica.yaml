@@ -1,4 +1,4 @@
-name: set_replica_count_by_chatbot
+name: chatbot_set_replica_count
 
 on: 
   workflow_dispatch:
@@ -59,7 +59,7 @@ jobs:
       - name: Set replicas
         run: |
           cd kubernetes/chatbot-app/base/
-          kustomize edit set replicas kemadaxbot-deployment=5
+          kustomize edit set replicas kemadaxbot-deployment="${{github.event.inputs.number_of_replicas}}"
           cd ../../../
           kubectl apply -k kubernetes/chatbot-app/overlays/production/
           
