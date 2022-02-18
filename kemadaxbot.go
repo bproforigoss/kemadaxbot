@@ -334,6 +334,7 @@ func main() {
 		}
 	}
 	responseAPIHandler := func(w http.ResponseWriter, req *http.Request) {
+		log.Debug(req.RequestURI[len(req.RequestURI)-10:])
 		for i := 0; i < len(randomURL); i++ {
 			if randomURL[i] == req.RequestURI[len(req.RequestURI)-10:] {
 				update := MessageFromGitHub{}
