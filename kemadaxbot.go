@@ -22,6 +22,7 @@ func init() {
 
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
+	rand.Seed(time.Now().UnixNano())
 
 }
 
@@ -102,7 +103,6 @@ func primeFactorization(num int) factorizedInt {
 func generateBigPrime() int {
 	min := 100000000
 	max := 1000000000
-	rand.Seed(time.Now().UnixNano())
 	randint := rand.Intn(max-min+1) + min
 	for i := randint; i > 2; i-- {
 
@@ -165,37 +165,42 @@ func convert(num int) string {
 	}
 }
 
-type Inputs struct {
+type InputsDeploy struct {
 	ChatID string `json:"chatID"`
 }
-type RequestToGithub struct {
-	Ref    string `json:"ref"`
-	Inputs Inputs `json:"inputs"`
+type RequestToGithubDeploy struct {
+	Ref    string       `json:"ref"`
+	Inputs InputsDeploy `json:"inputs"`
 }
 
-func deploy(URL string, PAT string, chatid string) {
+func deploy(URL string, PAT string, chatid string) error {
 	encoded := base64.StdEncoding.EncodeToString([]byte(PAT))
 
 	client := &http.Client{}
 
-	reqBody := RequestToGithub{
+	reqBody := RequestToGithubDeploy{
 		Ref:    "main",
-		Inputs: Inputs{ChatID: chatid},
+		Inputs: InputsDeploy{ChatID: chatid},
 	}
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		log.WithError(err).Warn("Marshal JSON failed")
-		return
+		log.WithError(err).Fatal("deploy func marshal JSON failed")
+		return fmt.Errorf("deploy func marshal JSON failed: %v", err)
 	}
 
 	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
+	if err != nil {
+		log.WithError(err).Fatal("deploy func making new request failed")
+		return fmt.Errorf("deploy func making new request failed: %v", err)
+	}
 	r.Header.Set("Content-type", "application/vnd.github.v3+json")
 	r.Header.Set("Authorization", fmt.Sprintf("Basic %s", encoded))
 
 	resp, err := client.Do(r)
 	if err != nil {
-		log.WithError(err).Fatal("Something wrong while sending request to GitHub API")
+		log.WithError(err).Fatal("Something went wrong while deploy func  was sending request to GitHub API")
+		return fmt.Errorf("Something went wrong while deploy func  was sending request to GitHub API: %v", err)
 	}
 
 	defer resp.Body.Close()
@@ -204,44 +209,52 @@ func deploy(URL string, PAT string, chatid string) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil && body == nil {
-		panic(err)
+		log.WithError(err).Fatal("deploy func could not read request body")
+		return fmt.Errorf("deploy func could not read request body: %v", err)
 	}
 
 	log.Debug(" GitHub API's HTTP response body content" + string(json.RawMessage(body)))
+	return nil
 }
 
 type InputsReplicaCount struct {
 	ChatID       string `json:"chatID"`
 	ReplicaCount string `json:"number_of_replicas"`
+	CustomUrl    string `json:"customURL"`
 }
 type RequestToGithubReplicaCount struct {
 	Ref    string             `json:"ref"`
 	Inputs InputsReplicaCount `json:"inputs"`
 }
 
-func setReplicaCount(URL string, PAT string, chatid string, replicaCount string) {
+func setReplicaCount(URL string, PAT string, chatid string, replicaCount string, customUrl string) error {
 	encoded := base64.StdEncoding.EncodeToString([]byte(PAT))
 
 	client := &http.Client{}
 
 	reqBody := RequestToGithubReplicaCount{
 		Ref:    "main",
-		Inputs: InputsReplicaCount{ChatID: chatid, ReplicaCount: replicaCount},
+		Inputs: InputsReplicaCount{ChatID: chatid, ReplicaCount: replicaCount, CustomUrl: customUrl},
 	}
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		log.WithError(err).Warn("Marshal JSON failed")
-		return
+		log.WithError(err).Fatal("setReplicaCount func marshal JSON failed")
+		return fmt.Errorf("setReplicaCountfunc marshal JSON failed: %v", err)
 	}
 
-	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
+	r, err := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
+	if err != nil {
+		log.WithError(err).Fatal("setReplicaCount func making new request failed")
+		return fmt.Errorf("setReplicaCount func making new request failed: %v", err)
+	}
 	r.Header.Set("Content-type", "application/vnd.github.v3+json")
 	r.Header.Set("Authorization", fmt.Sprintf("Basic %s", encoded))
 
 	resp, err := client.Do(r)
 	if err != nil {
-		log.WithError(err).Fatal("Something wrong while sending request to GitHub API")
+		log.WithError(err).Fatal("Something went wrong while setReplicaCount func was sending request to GitHub API")
+		return fmt.Errorf("Something went wrong while setReplicaCount func was sending request to GitHub API: %v", err)
 	}
 
 	defer resp.Body.Close()
@@ -250,14 +263,28 @@ func setReplicaCount(URL string, PAT string, chatid string, replicaCount string)
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil && body == nil {
-		panic(err)
+		log.WithError(err).Fatal("setReplicaCount func could not read request body")
+		return fmt.Errorf("setReplicaCount func could not read request body: %v", err)
 	}
 
 	log.Debug(" GitHub API's HTTP response body content" + string(json.RawMessage(body)))
+	return nil
 }
 
 type MessageFromGitHub struct {
 	ChatID string `json:"chat_id"`
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+var randomURL = make([]string, 0)
+
+func RandStringBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }
 
 func main() {
@@ -298,9 +325,6 @@ func main() {
 	if info.LastErrorDate != 0 {
 		log.Printf("Telegram callback failed: %s", info.LastErrorMessage)
 	}
-
-	updates := bot.ListenForWebhook("/")
-
 	helloHandler := func(w http.ResponseWriter, req *http.Request) {
 		log.Debug("Request for saying Hello")
 		_, err := fmt.Fprintf(w, "Hello %s", os.Getenv("USER"))
@@ -310,45 +334,67 @@ func main() {
 		}
 	}
 	responseAPIHandler := func(w http.ResponseWriter, req *http.Request) {
-		update := MessageFromGitHub{}
-		log.Debug("Request from GitHub")
-		body, _ := ioutil.ReadAll(req.Body)
-		err = json.Unmarshal(body, &update)
-		chatid, _ := strconv.ParseInt(update.ChatID, 10, 64)
-		msg := tgbotapi.NewMessage(chatid, "Deploy to kubernetes cluster completed")
-		if _, err := bot.Send(msg); err != nil {
-			log.Panic(err)
+		for i := 0; i < len(randomURL); i++ {
+			if randomURL[i] == req.RequestURI[len(req.RequestURI)-10:] {
+				update := MessageFromGitHub{}
+				log.Debug("Request from GitHub to responseAPI")
+				body, err := ioutil.ReadAll(req.Body)
+				if err != nil {
+					log.WithError(err).Warn("responseAPI could not read request body")
+				}
+				err = json.Unmarshal(body, &update)
+				if err != nil {
+					log.WithError(err).Warn("responseAPI could not Unmarshal request JSON")
+				}
+				chatid, _ := strconv.ParseInt(update.ChatID, 10, 64)
+				msg := tgbotapi.NewMessage(chatid, "Deploy to kubernetes cluster completed")
+				if _, err := bot.Send(msg); err != nil {
+					log.WithError(err).Warn("responseAPI could not send a message to chat")
+				}
+				break
+			}
+
 		}
+
 	}
 
 	http.HandleFunc("/hello", helloHandler)
-	http.HandleFunc("/responseAPI", responseAPIHandler)
+	http.HandleFunc("/responseAPI/", responseAPIHandler)
+
+	updates := bot.ListenForWebhook("/")
+
 	go func() { log.Panic(http.ListenAndServe(":8080", nil)) }()
 
 	for update := range updates {
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+		if update.Message != nil {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
-		if !update.Message.IsCommand() {
-			log.Debug("Answering Hey by default")
-			msg.Text = "Hey Buddy\nAvailable commands are th following:\n/Convert + (positive whole number as parameter, number< 999 999 999 999) Converting number into words. \n/PrimeFactorization + (positive whole number which is greater than 2, accepted as parameter)"
-		}
-		if update.Message.IsCommand() {
+			if !update.Message.IsCommand() {
+				log.Debug("Answering Hey by default")
+				msg.Text = "Hey Buddy\nAvailable commands are th following:\n/Convert + (positive whole number as parameter, number< 999 999 999 999) Converting number into words. \n/PrimeFactorization + (positive whole number which is greater than 2, accepted as parameter)"
+			}
 
-			switch update.Message.Command() {
-			case "Convert":
-				log.Debug("Converting number to text")
-				arg := update.Message.CommandArguments()
+			if update.Message.IsCommand() {
 
-				num, err := strconv.Atoi(arg)
-				if err != nil {
-					log.Debug("/Convert command parameter is not number")
-					msg.Text = "Wrong parameter, only positive whole number is accepted as parameter"
-				} else if num > 999999999999 {
-					msg.Text = "Wrong parameter, only number less than 999.999.999.999 is accepted"
-				} else {
-					if num == 0 {
+				switch update.Message.Command() {
+				case "Convert":
+					log.Debug("Converting number to text")
+					arg := update.Message.CommandArguments()
+
+					num, err := strconv.Atoi(arg)
+					if err != nil {
+						log.Debug("/Convert command parameter is not number")
+						msg.Text = "Wrong parameter, only positive whole number is accepted as parameter"
+					} else if num > 999999999999 {
+						log.Debug("/Convert command parameter is greater than 999999999999")
+						msg.Text = "Wrong parameter, only number less than 999.999.999.999 is accepted"
+					} else if num == 0 {
 						msg.Text = "Nulla"
+					} else if num < 0 {
+						log.Debug("/Convert command parameter is less than 0")
+						msg.Text = "Wrong parameter, parameter must be greater than 0"
+
 					} else {
 						convertedNum := convert(num)
 						convertedNumFirst := convertedNum[:1]
@@ -358,67 +404,87 @@ func main() {
 
 						msg.Text = convertedNum
 					}
-				}
 
-			case "PrimeFactorization":
-				log.Debug("Prime factorization request")
-				arg := update.Message.CommandArguments()
+				case "PrimeFactorization":
+					log.Debug("Prime factorization request")
+					arg := update.Message.CommandArguments()
 
-				num, err := strconv.Atoi(arg)
-				if err != nil || num < 2 {
-					log.Debug("/PrimeFactorization command parameter is not number or parameter is less than 2")
-					msg.Text = "Wrong parameter, only positive whole number which is greater than 2, accepted as parameter"
-				} else {
-					if IsPrime(num) {
+					num, err := strconv.Atoi(arg)
+					if err != nil {
+						log.Debug("/PrimeFactorization command parameter is not number")
+						msg.Text = "Wrong parameter, only positive whole number which is greater than 2, accepted as parameter"
+
+					} else if num < 2 {
+						log.Debug("/PrimeFactorization command parameter is less than 2")
+						msg.Text = "Wrong parameter, parameter must be greater than 2"
+
+					} else if IsPrime(num) {
+						log.Debug("/PrimeFactorization command parameter is a prime")
 						msg.Text = fmt.Sprint(num) + " is a prime"
+
 					} else {
 						result := primeFactorization(num)
 						msg.Text = "Prime factors: " + result.factorsWithCommas() + "\n" + "Factor tree:" + "\n" + result.factorTree()
 					}
+
+				case "GenerateBigPrime":
+					log.Debug("GenerateBigPrime request")
+					msg.Text = fmt.Sprint(generateBigPrime())
+
+				case "Deploy":
+					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
+					if err != nil {
+						log.Debug("/Deploy failed sending error to chat")
+						msg.Text = fmt.Sprint(err)
+					}
+
+				case "Deploy_debug":
+					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
+					if err != nil {
+						log.Debug("/Deploy_debug failed, sending error to chat")
+						msg.Text = fmt.Sprint(err)
+					}
+
+				case "SetReplicaCount":
+					arg := update.Message.CommandArguments()
+					num, err := strconv.Atoi(arg)
+					if err != nil {
+						log.Debug("/SetReplicaCount command parameter is not positive whole number")
+						msg.Text = "Wrong parameter, parameter is not number"
+
+					} else if num > 50 {
+						log.Debug("/SetReplicaCount command parameter is greater than 50")
+						msg.Text = "Wrong parameter, parameter is greater 50"
+
+					} else if num < 1 {
+						log.Debug("/SetReplicaCount command parameter is less than 50")
+						msg.Text = "Wrong parameter, parameter is less than 1"
+
+					} else {
+						url := RandStringBytes(10)
+						randomURL = append(randomURL, url)
+						err := setReplicaCount("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_set_replica.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID), fmt.Sprint(num), url)
+						if err != nil {
+							log.Debug("/SetReplicaCount failed sending error to chat")
+							msg.Text = fmt.Sprint(err)
+						}
+					}
+
+				case "Ping":
+					log.Debug("Responding pong, to /ping command")
+					msg.Text = "pong"
+				default:
+					log.Debug("Response to unknown command")
+					msg.Text = "I don't know that command"
 				}
-
-			case "GenerateBigPrime":
-				log.Debug("Responding pong,to GenerateBigPrime command")
-				msg.Text = fmt.Sprint(generateBigPrime())
-
-			case "Deploy":
-				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
-
-			case "Deploy_debug":
-				deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
-
-			case "SetReplicaCount":
-				arg := update.Message.CommandArguments()
-
-				num, err := strconv.Atoi(arg)
-				if err != nil || num > 50 {
-					log.Debug("/SetReplicaCount command parameter is not number or it is higher than 50")
-					msg.Text = "Wrong parameter, only positive whole number less than 50 is accepted as parameter"
-				}
-				setReplicaCount("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_set_replica.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID), fmt.Sprint(num))
-
-			case "SetReplicaCount_debug":
-				arg := update.Message.CommandArguments()
-
-				num, err := strconv.Atoi(arg)
-				if err != nil || num > 50 {
-					log.Debug("/SetReplicaCount command parameter is not number or it is higher than 50")
-					msg.Text = "Wrong parameter, only positive whole number less than 50 is accepted as parameter"
-				}
-				setReplicaCount("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_set_replica.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID), fmt.Sprint(num))
-
-			case "Ping":
-				log.Debug("Responding pong, to /ping command")
-				msg.Text = "pong"
-			default:
-				log.Debug("Response to unknown command")
-				msg.Text = "I don't know that command"
 			}
-		}
 
-		if _, err := bot.Send(msg); err != nil {
-			log.Debug("Bot sending response")
-			log.Panic(err)
+			if _, err := bot.Send(msg); err != nil {
+				log.Debug("Bot sending response")
+				log.Panic(err)
+			}
+		} else {
+			continue
 		}
 
 	}

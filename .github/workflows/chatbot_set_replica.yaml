@@ -9,6 +9,9 @@ on:
       chatID:
         description: 'Telegram chatID'     
         required: true
+      customURL:
+        description: 'Custom URL for sending message to chatbot application'     
+        required: true
 
 env:
   AGE_KEY: ${{ secrets.AGE_KEY }}
@@ -28,7 +31,7 @@ jobs:
         run: |
           curl POST \
           -H 'Content-Type: application/json' \
-          https://kemadaxbot.bprof.gesz.dev/responseAPI \
+          https://kemadaxbot.bprof.gesz.dev/responseAPI/"${{github.event.customURL}}" \
           -d '{"chat_id":"${{github.event.inputs.chatID}}"}'  
 
   set_replica_count_to_kubernetes_cluster:
