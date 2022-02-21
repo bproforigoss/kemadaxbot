@@ -439,7 +439,7 @@ func main() {
 						log.Debug("/Deploy failed sending error to chat")
 						msg.Text = fmt.Sprint(err)
 					}
-					msg.Text = "Deployment has been started"
+					time.Sleep(30 * time.Second)
 
 				case "Deploy_debug":
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
@@ -473,7 +473,7 @@ func main() {
 							log.Debug("/SetReplicaCount failed sending error to chat")
 							msg.Text = fmt.Sprint(err)
 						}
-						msg.Text = "Deployment has been started"
+						time.Sleep(30 * time.Second)
 					}
 
 				case "Ping":
@@ -486,7 +486,6 @@ func main() {
 			}
 
 			if _, err := bot.Send(msg); err != nil {
-				log.Debug("Bot sending response")
 				log.Panic(err)
 			}
 		} else {
