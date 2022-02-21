@@ -334,7 +334,8 @@ func main() {
 		}
 	}
 	responseAPIHandler := func(w http.ResponseWriter, req *http.Request) {
-		log.Debug(req.URL)
+		log.Debug(req.URL.Path[len(req.URL.Path)-10:])
+
 		for i := 0; i < len(randomURL); i++ {
 			if randomURL[i] == req.URL.Path[len(req.URL.Path)-10:] {
 				update := MessageFromGitHub{}
@@ -438,6 +439,7 @@ func main() {
 						log.Debug("/Deploy failed sending error to chat")
 						msg.Text = fmt.Sprint(err)
 					}
+					msg.Text = "Deployment has been started"
 
 				case "Deploy_debug":
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
@@ -445,6 +447,7 @@ func main() {
 						log.Debug("/Deploy_debug failed, sending error to chat")
 						msg.Text = fmt.Sprint(err)
 					}
+					msg.Text = "Deployment has been started"
 
 				case "SetReplicaCount":
 					arg := update.Message.CommandArguments()
@@ -464,11 +467,13 @@ func main() {
 					} else {
 						url := RandStringBytes(10)
 						randomURL = append(randomURL, url)
+						log.Debug(url)
 						err := setReplicaCount("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_set_replica.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID), fmt.Sprint(num), url)
 						if err != nil {
 							log.Debug("/SetReplicaCount failed sending error to chat")
 							msg.Text = fmt.Sprint(err)
 						}
+						msg.Text = "Deployment has been started"
 					}
 
 				case "Ping":

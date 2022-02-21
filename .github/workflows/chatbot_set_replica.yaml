@@ -31,7 +31,7 @@ jobs:
         run: |
           curl POST \
           -H 'Content-Type: application/json' \
-          https://kemadaxbot.bprof.gesz.dev/responseAPI/"${{github.event.customURL}}" \
+          https://kemadaxbot.bprof.gesz.dev/responseAPI/${{github.event.customURL}} \
           -d '{"chat_id":"${{github.event.inputs.chatID}}"}'  
 
   set_replica_count_to_kubernetes_cluster:
