@@ -4,7 +4,7 @@ resources:
 images:
 - name: kemadax
   newName: ghcr.io/bproforigoss/kemadaxbot
-  newTag: sha-97b37ba
+  newTag: sha-f6a2bf2
 configMapGenerator:
 - envs:
   - env/chatbot.env
