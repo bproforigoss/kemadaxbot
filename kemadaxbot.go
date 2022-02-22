@@ -375,6 +375,9 @@ func main() {
 			if !update.Message.IsCommand() {
 				log.Debug("Answering Hey by default")
 				msg.Text = "Hey Buddy\nAvailable commands are th following:\n/Convert + (positive whole number as parameter, number< 999 999 999 999) Converting number into words. \n/PrimeFactorization + (positive whole number which is greater than 2, accepted as parameter)"
+				if _, err := bot.Send(msg); err != nil {
+					log.Panic(err)
+				}
 			}
 
 			if update.Message.IsCommand() {
@@ -406,6 +409,9 @@ func main() {
 
 						msg.Text = convertedNum
 					}
+					if _, err := bot.Send(msg); err != nil {
+						log.Panic(err)
+					}
 
 				case "PrimeFactorization":
 					log.Debug("Prime factorization request")
@@ -428,26 +434,36 @@ func main() {
 						result := primeFactorization(num)
 						msg.Text = "Prime factors: " + result.factorsWithCommas() + "\n" + "Factor tree:" + "\n" + result.factorTree()
 					}
+					if _, err := bot.Send(msg); err != nil {
+						log.Panic(err)
+					}
 
 				case "GenerateBigPrime":
 					log.Debug("GenerateBigPrime request")
 					msg.Text = fmt.Sprint(generateBigPrime())
+					if _, err := bot.Send(msg); err != nil {
+						log.Panic(err)
+					}
 
 				case "Deploy":
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
 						log.Debug("/Deploy failed sending error to chat")
 						msg.Text = fmt.Sprint(err)
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 					}
-					time.Sleep(30 * time.Second)
 
 				case "Deploy_debug":
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
 						log.Debug("/Deploy_debug failed, sending error to chat")
 						msg.Text = fmt.Sprint(err)
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 					}
-					msg.Text = "Deployment has been started"
 
 				case "SetReplicaCount":
 					arg := update.Message.CommandArguments()
@@ -455,14 +471,23 @@ func main() {
 					if err != nil {
 						log.Debug("/SetReplicaCount command parameter is not positive whole number")
 						msg.Text = "Wrong parameter, parameter is not number"
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 
 					} else if num > 50 {
 						log.Debug("/SetReplicaCount command parameter is greater than 50")
 						msg.Text = "Wrong parameter, parameter is greater 50"
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 
 					} else if num < 1 {
 						log.Debug("/SetReplicaCount command parameter is less than 50")
 						msg.Text = "Wrong parameter, parameter is less than 1"
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 
 					} else {
 						url := RandStringBytes(10)
@@ -472,22 +497,28 @@ func main() {
 						if err != nil {
 							log.Debug("/SetReplicaCount failed sending error to chat")
 							msg.Text = fmt.Sprint(err)
+							if _, err := bot.Send(msg); err != nil {
+								log.Panic(err)
+							}
 						}
-						time.Sleep(30 * time.Second)
+
 					}
 
 				case "Ping":
 					log.Debug("Responding pong, to /ping command")
 					msg.Text = "pong"
+					if _, err := bot.Send(msg); err != nil {
+						log.Panic(err)
+					}
 				default:
 					log.Debug("Response to unknown command")
 					msg.Text = "I don't know that command"
+					if _, err := bot.Send(msg); err != nil {
+						log.Panic(err)
+					}
 				}
 			}
 
-			if _, err := bot.Send(msg); err != nil {
-				log.Panic(err)
-			}
 		} else {
 			continue
 		}
