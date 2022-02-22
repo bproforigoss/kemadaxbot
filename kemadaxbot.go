@@ -335,8 +335,10 @@ func main() {
 	}
 	responseAPIHandler := func(w http.ResponseWriter, req *http.Request) {
 		log.Debug(req.URL.Path[len(req.URL.Path)-10:])
+		log.Debug(randomURL)
 
 		for _, v := range randomURL {
+			log.Debug(v)
 			if v == req.URL.Path[len(req.URL.Path)-10:] {
 				update := MessageFromGitHub{}
 				log.Debug("Request from GitHub to responseAPI")
