@@ -335,38 +335,28 @@ func main() {
 	}
 	responseAPIHandler := func(w http.ResponseWriter, req *http.Request) {
 		log.Debug(req.URL.Path[len(req.URL.Path)-10:])
-		log.Debug(req.URL)
-		log.Debug(req.Proto)
-		log.Debug(req.URL.Opaque)
-		log.Debug(req.URL.RawQuery)
-		log.Debug(req.URL.Scheme)
-		log.Debug(req.URL.Path)
-		log.Debug(req.URL.RawPath)
-		log.Debug(req.URL.Host)
-		log.Debug(req.URL.RawFragment)
-		log.Debug(req.URL.User)
 
-		for i := 0; i < len(randomURL); i++ {
-			if randomURL[i] == req.URL.Path[len(req.URL.Path)-10:] {
-				update := MessageFromGitHub{}
-				log.Debug("Request from GitHub to responseAPI")
-				body, err := ioutil.ReadAll(req.Body)
-				if err != nil {
-					log.WithError(err).Warn("responseAPI could not read request body")
-				}
-				err = json.Unmarshal(body, &update)
-				if err != nil {
-					log.WithError(err).Warn("responseAPI could not Unmarshal request JSON")
-				}
-				chatid, _ := strconv.ParseInt(update.ChatID, 10, 64)
-				msg := tgbotapi.NewMessage(chatid, "Deploy to kubernetes cluster completed")
-				if _, err := bot.Send(msg); err != nil {
-					log.WithError(err).Warn("responseAPI could not send a message to chat")
-				}
-				break
-			}
-
+		//for  _, v := range randomURL{
+		//if v == req.URL.Path[len(req.URL.Path)-10:] {
+		update := MessageFromGitHub{}
+		log.Debug("Request from GitHub to responseAPI")
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			log.WithError(err).Warn("responseAPI could not read request body")
 		}
+		err = json.Unmarshal(body, &update)
+		if err != nil {
+			log.WithError(err).Warn("responseAPI could not Unmarshal request JSON")
+		}
+		chatid, _ := strconv.ParseInt(update.ChatID, 10, 64)
+		msg := tgbotapi.NewMessage(chatid, "Deploy to kubernetes cluster completed")
+		if _, err := bot.Send(msg); err != nil {
+			log.WithError(err).Warn("responseAPI could not send a message to chat")
+		}
+		//break
+		//}
+
+		//}
 
 	}
 
