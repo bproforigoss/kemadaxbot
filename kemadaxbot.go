@@ -337,7 +337,6 @@ func main() {
 		log.Debug(req.URL.Path[len(req.URL.Path)-10:])
 		log.Debug(req.URL)
 		log.Debug(req.Proto)
-		log.Debug(req.GetBody)
 		log.Debug(req.URL.Opaque)
 		log.Debug(req.URL.RawQuery)
 		log.Debug(req.URL.Scheme)
@@ -345,7 +344,6 @@ func main() {
 		log.Debug(req.URL.RawPath)
 		log.Debug(req.URL.Host)
 		log.Debug(req.URL.RawFragment)
-		log.Debug(req.URL.EscapedPath())
 		log.Debug(req.URL.User)
 
 		for i := 0; i < len(randomURL); i++ {
