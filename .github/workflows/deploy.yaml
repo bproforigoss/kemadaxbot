@@ -12,7 +12,7 @@ env:
 jobs:
 
 
-    deploy_to_kubernetes_cluster:
+  deploy_to_kubernetes_cluster:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
