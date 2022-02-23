@@ -6,10 +6,13 @@ on:
       image_name:
         description: 'Docker image name'     
         required: true
-             
+env:
+  AGE_KEY: ${{ secrets.AGE_KEY }}
+  SOPS_AGE_KEY_FILE: .config/sops/age/keys.txt
 jobs:
 
-  deploy_to_kubernetes_cluster:
+
+    deploy_to_kubernetes_cluster:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -20,12 +23,29 @@ jobs:
         with:
           method: kubeconfig
           kubeconfig: ${{secrets.KUBE_CONFIG}}
+               
+      - name: Set up Mozilla SOPS 
+        run: |
+          wget https://github.com/mozilla/sops/releases/download/v3.7.1/sops_3.7.1_amd64.deb
+          sudo dpkg -i sops_3.7.1_amd64.deb
+
+        
+      - name: Decryption 
+        run: |
+          ls -a .
+          echo "$AGE_KEY" > .config/sops/age/keys.txt
+          sops -d  kubernetes/chatbot-app/base/secret/chatbot.enc.env > kubernetes/chatbot-app/base/secret/chatbot.secret
+  
           
       - name: Deploy to Cluster
         run: |
           cd kubernetes/chatbot-app/base/
           kustomize edit set image kemadax=${{github.event.inputs.image_name}}
           cd ../../../
-          echo -n 'API_TOKEN=${{secrets.telegram_token}}' > kubernetes/chatbot-app/base/secret/chatbot.secret
           kubectl apply -k kubernetes/chatbot-app/overlays/production/
           
+          
+          git config --global user.name 'Automated CI/CD Agent'
+          git config --global user.email 'kemadax@gmail.com'
+          git commit -am "Chatbot deploys"
+          git push

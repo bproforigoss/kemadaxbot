@@ -1,11 +1,17 @@
-name: Deploy_debug_by_chatbot
+name: Deploy_by_chatbot
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    inputs:
+      chatID:
+        description: 'Telegram chatID'     
+        required: true
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   AGE_KEY: ${{ secrets.AGE_KEY }}
+  SOPS_AGE_KEY_FILE: .config/sops/age/keys.txt
              
 jobs:
   docker:
@@ -43,8 +49,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-
+            
   deploy_to_kubernetes_cluster:
     runs-on: ubuntu-latest
     steps:
@@ -56,15 +61,18 @@ jobs:
         with:
           method: kubeconfig
           kubeconfig: ${{secrets.KUBE_CONFIG}}
-          
-     
-      - uses: adnsio/setup-age-action@v1.1.0
-      - run: age --version
+               
+      - name: Set up Mozilla SOPS 
+        run: |
+          wget https://github.com/mozilla/sops/releases/download/v3.7.1/sops_3.7.1_amd64.deb
+          sudo dpkg -i sops_3.7.1_amd64.deb
+
         
       - name: Decryption 
         run: |
-          echo "$AGE_KEY" > key.txt
-          age -d -i key.txt -o kubernetes/chatbot-app/base/secret/chatbot.secret kubernetes/chatbot-app/base/secret/chatbot.secret.age
+          ls -a .
+          echo "$AGE_KEY" > .config/sops/age/keys.txt
+          sops -d  kubernetes/chatbot-app/base/secret/chatbot.enc.env > kubernetes/chatbot-app/base/secret/chatbot.secret
   
           
       - name: Deploy to Cluster
@@ -73,3 +81,27 @@ jobs:
           kustomize edit set image kemadax="ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}"
           cd ../../../
           kubectl apply -k kubernetes/chatbot-app/overlays/development/
+          
+          
+          git config --global user.name 'Automated CI/CD Agent'
+          git config --global user.email 'kemadax@gmail.com'
+          git commit -am "Chatbot deploys"
+          git push
+          
+          
+  sending_response_to_chat:
+    runs-on: ubuntu-latest
+    needs: deploy_to_kubernetes_cluster
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+          
+      - name: run chatbot Api
+        run: |
+          curl POST \
+          -H 'Content-Type: application/json' \
+          https://kemadaxbot.bprof.gesz.dev/responseAPI \
+          -d '{"chat_id":"${{github.event.inputs.chatID}}"}'
+
+          
