@@ -8,7 +8,7 @@ on:
         required: true
 
 env:
-  REGISTRY: ghcr.io
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
   IMAGE_NAME: primegenerator
 
              
@@ -66,7 +66,7 @@ jobs:
       - name: Deploy to Cluster
         run: |
           cd kubernetes/primeGenerator-app/base/
-          kustomize edit set image primeGeneratorImage="ghcr.io/${{ github.repository_owner }}/primegenerator:sha-${GITHUB_SHA::7}"
+          kustomize edit set image primegeneratorimage="ghcr.io/${{ github.repository_owner }}/primegenerator:sha-${GITHUB_SHA::7}"
           cd ../../../
           kubectl apply -k kubernetes/primeGenerator-app/overlays/development/
           
