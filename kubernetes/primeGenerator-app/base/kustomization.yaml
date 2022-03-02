@@ -1,6 +1,6 @@
 resources:
-- primegenerator-service.yaml
-- primegenerator-deployment.yaml
+- primeGenerator-service.yaml
+- primeGenerator-deployment.yaml
 images:
 - name: primegeneratorimage
   newName: ghcr.io/bproforigoss/primegenerator
