@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: primeGenerator-deployment
+  labels:
+    app: primeGenerator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: primeGenerator
+  template:
+    metadata:
+      labels:
+        app: primeGenerator
+    spec:
+      containers:
+      - name: primeGenerator
+        image: primeGeneratorImage
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: primeGenerator-configmap
+        livenessProbe:
+          httpGet:
+            path: /hello
+            port: 8080
+
+        
+        
+          
+         
+    
+      
+    
+      

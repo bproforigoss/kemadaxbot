@@ -371,7 +371,7 @@ func main() {
 
 	for update := range updates {
 
-		if update.Message != nil {
+		if update.Message != nil { //chat nil ?
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 			if !update.Message.IsCommand() {
