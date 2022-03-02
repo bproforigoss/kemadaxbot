@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: primeGenerator-deployment
+  name: primegenerator-deployment
 spec:
   template:
     spec:
       containers:
-      - name: primeGenerator
+      - name: primegenerator
         args: ["-v"]

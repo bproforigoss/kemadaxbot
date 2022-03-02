@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: primeGenerator-service
+  name: primegenerator-service
 spec:
   selector:
-    app: primeGenerator
+    app: primegenerator
   ports:
     - protocol: TCP
       port: 80

@@ -1,16 +1,16 @@
 resources:
-- primeGenerator-service.yaml
-- primeGenerator-deployment.yaml
+- primegenerator-service.yaml
+- primegenerator-deployment.yaml
 images:
-- name: primeGeneratorImage
+- name: primegeneratorimage
   newName: ghcr.io/bproforigoss/primegenerator
   newTag: first
 configMapGenerator:
 - envs:
   - env/chatbot.env
-  name: primeGenerator-configmap
+  name: primegenerator-configmap
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 replicas:
 - count: 1
-  name: primeGenerator-deployment
+  name: primegenerator-deployment
