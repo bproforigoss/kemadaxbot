@@ -100,20 +100,7 @@ func primeFactorization(num int) factorizedInt {
 	}
 	return f
 }
-func generateBigPrime() int {
-	min := 100000000
-	max := 1000000000
-	randint := rand.Intn(max-min+1) + min
-	for i := randint; i > 2; i-- {
 
-		if IsPrime(i) {
-			return i
-		}
-
-	}
-	return 0
-
-}
 func convert(num int) string {
 
 	var egyes = map[int]string{
@@ -286,6 +273,21 @@ func RandStringBytes(n int) string {
 	}
 	return string(b)
 }
+func generatePrimeRequest() string {
+	resp, err := http.Get("https://primegenerator-service")
+	if err != nil {
+		log.WithError(err).Fatal("Something went wrong while generatePrimeRequest func was sending request to primegenerator-service")
+		return fmt.Sprint("HTTP.GET failed with error: ", err)
+	}
+	defer resp.Body.Close()
+	log.WithFields(log.Fields{
+		"Status": resp.Status,
+	}).Debug("Response recieved")
+
+	prime, _ := ioutil.ReadAll(resp.Body)
+	return fmt.Sprint(prime)
+
+}
 
 func main() {
 
@@ -371,7 +373,7 @@ func main() {
 
 	for update := range updates {
 
-		if update.Message != nil { //chat nil ?
+		if update.Message != nil && update.Message.Chat != nil {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 			if !update.Message.IsCommand() {
@@ -442,23 +444,23 @@ func main() {
 
 				case "GenerateBigPrime":
 					log.Debug("GenerateBigPrime request")
-					msg.Text = fmt.Sprint(generateBigPrime())
+					msg.Text = generatePrimeRequest()
 					if _, err := bot.Send(msg); err != nil {
 						log.Panic(err)
 					}
 
-				case "Deploy":
-					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
+				case "Deploy_primeGenerator":
+					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_primeGenerator_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
-						log.Debug("/Deploy failed sending error to chat")
+						log.Debug("/Deploy failed, sending error to chat")
 						msg.Text = fmt.Sprint(err)
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
 					}
 
-				case "Deploy_debug":
-					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
+				case "Deploy_primeGenerator_debug":
+					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/bot_primeGenerator_deploy _debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
 						log.Debug("/Deploy_debug failed, sending error to chat")
 						msg.Text = fmt.Sprint(err)
@@ -497,7 +499,7 @@ func main() {
 						log.Debug(url)
 						err := setReplicaCount("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_set_replica.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID), fmt.Sprint(num), url)
 						if err != nil {
-							log.Debug("/SetReplicaCount failed sending error to chat")
+							log.Debug("/SetReplicaCount failed, sending error to chat")
 							msg.Text = fmt.Sprint(err)
 							if _, err := bot.Send(msg); err != nil {
 								log.Panic(err)

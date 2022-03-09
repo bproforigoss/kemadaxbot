@@ -69,7 +69,7 @@ jobs:
           cd kubernetes/primeGenerator-app/base/
           kustomize edit set image primegeneratorimage="ghcr.io/${{ github.repository_owner }}/primegenerator:sha-${GITHUB_SHA::7}"
           cd ../../../
-          kubectl apply -k kubernetes/primeGenerator-app/overlays/production/
+          kubectl apply -k kubernetes/primeGenerator-app/overlays/development/
           
           
           git config --global user.name 'Automated CI/CD Agent'

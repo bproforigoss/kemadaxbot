@@ -10,29 +10,14 @@ on:
         description: 'Telegram chatID'     
         required: true
       customURL:
-        description: 'Custom URL for sending message to chatbot application'     
+        description: 'Custom URL for sending response to chatbot application'     
         required: true
 
 env:
   AGE_KEY: ${{ secrets.AGE_KEY }}
   SOPS_AGE_KEY_FILE: .config/sops/age/keys.txt
              
-jobs:
-          
-  sending_response_to_chat:
-    runs-on: ubuntu-latest
-    needs: set_replica_count_to_kubernetes_cluster
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-          
-      - name: run chatbot Api
-        run: |
-          curl POST \
-          -H 'Content-Type: application/json' \
-          https://kemadaxbot.bprof.gesz.dev/responseAPI/${{github.event.inputs.customURL}} \
-          -d '{"chat_id":"${{github.event.inputs.chatID}}"}'  
+jobs:  
 
   set_replica_count_to_kubernetes_cluster:
     runs-on: ubuntu-latest
@@ -61,16 +46,29 @@ jobs:
           
       - name: Set replicas
         run: |
-          cd kubernetes/chatbot-app/base/
-          kustomize edit set replicas kemadaxbot-deployment="${{github.event.inputs.number_of_replicas}}"
+          cd kubernetes/primeGenerator-app/base/
+          kustomize edit set replicas primegenerator-deployment="${{github.event.inputs.number_of_replicas}}"
           cd ../../../
-          kubectl apply -k kubernetes/chatbot-app/overlays/development/
+          kubectl apply -k kubernetes/primeGenerator-app/overlays/development/
           
           git config --global user.name 'Automated CI/CD Agent'
           git config --global user.email 'kemadax@gmail.com'
           git diff --quiet && git diff --staged --quiet || (git commit -am "Chatbot deploys" && git push)
           
+  sending_response_to_chat:
+    runs-on: ubuntu-latest
+    needs: set_replica_count_to_kubernetes_cluster
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
           
+      - name: run chatbot Api
+        run: |
+          curl POST \
+          -H 'Content-Type: application/json' \
+          https://kemadaxbot.bprof.gesz.dev/responseAPI/${{github.event.inputs.customURL}} \
+          -d '{"chat_id":"${{github.event.inputs.chatID}}"}'         
           
 
           

@@ -65,7 +65,3 @@ func TestConvert(t *testing.T) {
 func BenchmarkPrimeFactors(b *testing.B) {
 	primeFactorization(100)
 }
-func BenchmarkGenerateBigprime(b *testing.B) {
-	generateBigPrime()
-}
-
