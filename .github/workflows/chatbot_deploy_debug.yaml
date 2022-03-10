@@ -85,8 +85,7 @@ jobs:
           
           git config --global user.name 'Automated CI/CD Agent'
           git config --global user.email 'kemadax@gmail.com'
-          git commit -am "Chatbot deploys"
-          git push
+          git diff --quiet && git diff --staged --quiet || (git commit -am "Chatbot deploys" && git push)
           
           
   sending_response_to_chat:

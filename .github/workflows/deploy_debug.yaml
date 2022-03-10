@@ -42,7 +42,7 @@ jobs:
           cd kubernetes/chatbot-app/base/
           kustomize edit set image kemadax=${{github.event.inputs.image_name}}
           cd ../../../
-          kubectl apply -k kubernetes/chatbot-app/overlays/production/
+          kubectl apply -k kubernetes/chatbot-app/overlays/development/
           
           
           git config --global user.name 'Automated CI/CD Agent'

@@ -110,10 +110,21 @@ jobs:
   deploy_by_tag_debug:  
         if: ${{ contains(github.ref_name,'debug')}}
         needs: docker
-        uses: bproforigoss/kemadaxbot/.github/workflows/deploy-debug.yaml@main
-        with:
-          image_name: ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}
-        secrets:
-          kube_config: ${{secrets.KUBE_CONFIG }} 
-          telegram_token: ${{secrets.TELEGRAM_TOKEN }}
+        env:
+          TOKEN: ${{ secrets.REPO_DISPATCH_PAT}}
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v2
+          
+          - name: run Api
+            run: |
+              curl -u ":$TOKEN" \
+              -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/deploy_debug.yaml/dispatches \
+              -d '{"ref": "main", 
+                   "inputs": {
+                      "image_name": "ghcr.io/${{ github.repository_owner }}/kemadaxbot:sha-${GITHUB_SHA::7}"
+                      }
+              }'
           
