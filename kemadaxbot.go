@@ -285,7 +285,8 @@ func generatePrimeRequest() string {
 	}).Debug("Response recieved")
 
 	prime, _ := ioutil.ReadAll(resp.Body)
-	return fmt.Sprint(prime)
+	sprime := string(prime)
+	return sprime
 
 }
 
