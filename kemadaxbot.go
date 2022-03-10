@@ -274,9 +274,9 @@ func RandStringBytes(n int) string {
 	return string(b)
 }
 func generatePrimeRequest() string {
-	resp, err := http.Get("https://primegenerator-service")
+	resp, err := http.Get("http://primegenerator-service")
 	if err != nil {
-		log.WithError(err).Fatal("Something went wrong while generatePrimeRequest func was sending request to primegenerator-service")
+		log.WithError(err).Warning("Something went wrong while generatePrimeRequest func was sending request to primegenerator-service")
 		return fmt.Sprint("HTTP.GET failed with error: ", err)
 	}
 	defer resp.Body.Close()
