@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -75,7 +77,7 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
-
+	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/", responseAPIHandler)
 

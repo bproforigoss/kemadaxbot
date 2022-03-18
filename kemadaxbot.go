@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -364,7 +365,7 @@ func main() {
 		}
 
 	}
-
+	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/responseAPI/", responseAPIHandler)
 
@@ -461,7 +462,7 @@ func main() {
 					}
 
 				case "Deploy_primeGenerator_debug":
-					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/bot_primeGenerator_deploy _debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
+					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_primeGenerator_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
 						log.Debug("/Deploy_debug failed, sending error to chat")
 						msg.Text = fmt.Sprint(err)
