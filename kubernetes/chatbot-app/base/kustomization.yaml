@@ -2,6 +2,8 @@ resources:
 - kemadaxbot-service.yaml
 - kemadaxbot-deployment.yaml
 - kemadaxbot-servicemonitor.yaml
+- prometheus-role.yaml
+- prometheus-rolebinding.yaml
 images:
 - name: kemadax
   newName: ghcr.io/bproforigoss/kemadaxbot
