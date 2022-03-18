@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kemadaxbot
+spec:
+  endpoints:
+  - interval: 15s
+    port: 80
+  selector:
+    matchLabels:
+      app: kemadaxbot
