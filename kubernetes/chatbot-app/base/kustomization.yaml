@@ -1,6 +1,7 @@
 resources:
 - kemadaxbot-service.yaml
 - kemadaxbot-deployment.yaml
+- kemadaxbot-servicemonitor.yaml
 images:
 - name: kemadax
   newName: ghcr.io/bproforigoss/kemadaxbot
