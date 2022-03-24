@@ -1,11 +1,11 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: kemadaxbot
+  name: primegenerator
 spec:
   endpoints:
   - interval: 15s
     targetPort: 8080
   selector:
     matchLabels:
-      app: kemadaxbot
+      app: primegenerator

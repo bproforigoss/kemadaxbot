@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 
@@ -24,8 +25,16 @@ func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 	rand.Seed(time.Now().UnixNano())
-
+	prometheus.MustRegister(respDuration)
 }
+
+var (
+	respDuration = prometheus.NewHistogram(prometheus.HistogramOpts{
+		Name:    "generatBigPrime_request_duration",
+		Help:    "Durations till primeGenerator component responds with prime",
+		Buckets: []float64{15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45},
+	})
+)
 
 type primePair struct {
 	factor    int
@@ -446,7 +455,10 @@ func main() {
 
 				case "GenerateBigPrime":
 					log.Debug("GenerateBigPrime request")
+					start := time.Now()
 					msg.Text = generatePrimeRequest()
+					duration := time.Since(start)
+					respDuration.Observe(duration.Seconds())
 					if _, err := bot.Send(msg); err != nil {
 						log.Panic(err)
 					}
