@@ -32,7 +32,7 @@ var (
 	respDuration = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "generatBigPrime_request_duration",
 		Help:    "Durations till primeGenerator component responds with prime",
-		Buckets: []float64{15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45},
+		Buckets: []float64{60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260},
 	})
 )
 
