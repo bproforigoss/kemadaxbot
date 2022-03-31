@@ -26,6 +26,7 @@ func init() {
 	log.SetOutput(os.Stdout)
 	rand.Seed(time.Now().UnixNano())
 	prometheus.MustRegister(respDuration)
+	prometheus.MustRegister(respCounter)
 }
 
 var (
@@ -33,6 +34,10 @@ var (
 		Name:    "generatBigPrime_request_duration",
 		Help:    "Durations till primeGenerator component responds with prime",
 		Buckets: []float64{60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260},
+	})
+	respCounter = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "generatBigPrime_request_counter",
+		Help: "Number of primeGenerator component responds with prime",
 	})
 )
 
@@ -459,6 +464,7 @@ func main() {
 					msg.Text = generatePrimeRequest()
 					duration := time.Since(start)
 					respDuration.Observe(duration.Seconds())
+					respCounter.Inc()
 					if _, err := bot.Send(msg); err != nil {
 						log.Panic(err)
 					}
