@@ -389,7 +389,7 @@ func main() {
 	go func() { log.Panic(http.ListenAndServe(":8080", nil)) }()
 
 	for update := range updates {
-		log.Debug(update.Message)
+		log.Debug(fmt.Sprint(update))
 		if update.Message != nil && update.Message.Chat != nil {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
