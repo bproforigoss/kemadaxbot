@@ -389,7 +389,7 @@ func main() {
 	go func() { log.Panic(http.ListenAndServe(":8080", nil)) }()
 
 	for update := range updates {
-
+		log.Debug(update)
 		if update.Message != nil && update.Message.Chat != nil {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
@@ -461,11 +461,11 @@ func main() {
 
 				case "GenerateBigPrime":
 					log.Debug("GenerateBigPrime request")
+					respCounter.WithLabelValues("GenerateBigPrime").Inc()
 					start := time.Now()
 					msg.Text = generatePrimeRequest()
 					duration := time.Since(start)
 					respDuration.Observe(duration.Seconds())
-					respCounter.WithLabelValues("GenerateBigPrime").Inc()
 					if _, err := bot.Send(msg); err != nil {
 						log.Panic(err)
 					}
