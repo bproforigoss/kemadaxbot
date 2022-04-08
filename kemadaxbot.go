@@ -27,6 +27,9 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 	prometheus.MustRegister(respDuration)
 	prometheus.MustRegister(respCounter)
+	prometheus.MustRegister(respDurationAvg)
+	prometheus.MustRegister(reqFrequencyCounter)
+	prometheus.MustRegister(respFrequencyCounter)
 }
 
 var (
@@ -40,6 +43,21 @@ var (
 		Help: "Number of primeGenerator component responds with prime",
 	},
 		[]string{"command"})
+	respDurationAvg = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "generatBigPrime_request_duration_avg",
+		Help: "Avarage durations primeGenerator component responds with prime",
+	})
+	reqFrequencyCounter = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "generatBigPrime_request_frequency_counter",
+		Help: "Number of primeGenerator component responds with prime",
+	})
+	respFrequencyCounter = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "generatBigPrime_response_frequency_counter",
+		Help: "Number of primeGenerator component responds with prime",
+	})
+
+	requestCounter   float64
+	responseDuration float64
 )
 
 type primePair struct {
@@ -389,7 +407,7 @@ func main() {
 	go func() { log.Panic(http.ListenAndServe(":8080", nil)) }()
 
 	for update := range updates {
-		log.Debug(fmt.Sprint(update))
+		log.Debug(fmt.Print(update))
 		if update.Message != nil && update.Message.Chat != nil {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
@@ -460,12 +478,17 @@ func main() {
 					}
 
 				case "GenerateBigPrime":
+					reqFrequencyCounter.Inc()
+					requestCounter += 1
 					log.Debug("GenerateBigPrime request")
 					respCounter.WithLabelValues("GenerateBigPrime").Inc()
 					start := time.Now()
 					msg.Text = generatePrimeRequest()
 					duration := time.Since(start)
 					respDuration.Observe(duration.Seconds())
+					responseDuration += duration.Seconds()
+					respDurationAvg.Set((responseDuration / requestCounter))
+					respFrequencyCounter.Inc()
 					if _, err := bot.Send(msg); err != nil {
 						log.Panic(err)
 					}
