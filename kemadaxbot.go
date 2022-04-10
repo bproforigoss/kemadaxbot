@@ -408,7 +408,7 @@ func main() {
 
 	for update := range updates {
 		log.Debug(fmt.Print(update))
-		if update.Message != nil && update.Message.Chat != nil {
+		if update.Message != nil {
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 			if !update.Message.IsCommand() {
@@ -477,8 +477,9 @@ func main() {
 						log.Panic(err)
 					}
 
-				case "GenerateBigPrime":
+				case "GenerateBigPrime": //külön függvény goroutine
 					reqFrequencyCounter.Inc()
+					log.Debug("reqFrequencyCounter.Inc()")
 					requestCounter += 1
 					log.Debug("GenerateBigPrime request")
 					respCounter.WithLabelValues("GenerateBigPrime").Inc()
@@ -488,7 +489,8 @@ func main() {
 					respDuration.Observe(duration.Seconds())
 					responseDuration += duration.Seconds()
 					respDurationAvg.Set((responseDuration / requestCounter))
-					respFrequencyCounter.Inc()
+					respFrequencyCounter.Inc() //szükségtelen
+					log.Debug("Response arrived from primeGenerator")
 					if _, err := bot.Send(msg); err != nil {
 						log.Panic(err)
 					}
