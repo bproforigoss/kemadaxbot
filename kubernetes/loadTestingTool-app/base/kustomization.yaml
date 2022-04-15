@@ -5,7 +5,7 @@ resources:
 images:
 - name: loadtestingtoolimage
   newName: ghcr.io/bproforigoss/loadtestingtool
-  newTag: sha-746f70b
+  newTag: sha-bb64646
 configMapGenerator:
 - envs:
   - env/chatbot.env
