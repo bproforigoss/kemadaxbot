@@ -1,0 +1,17 @@
+resources:
+- loadTestingTool-service.yaml
+- loadTestingTool-deployment.yaml
+- loadTestingTool-servicemonitor.yaml
+images:
+- name: loadtestingtoolimage
+  newName: ghcr.io/bproforigoss/loadtestingtool
+  newTag: sha-746f70b
+configMapGenerator:
+- envs:
+  - env/chatbot.env
+  name: loadtestingtool-configmap
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+replicas:
+- count: 1
+  name: loadtestingtool-deployment

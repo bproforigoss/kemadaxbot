@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: loadtestingtool
+spec:
+  endpoints:
+  - interval: 15s
+    targetPort: 8080
+  selector:
+    matchLabels:
+      app: loadtestingtool

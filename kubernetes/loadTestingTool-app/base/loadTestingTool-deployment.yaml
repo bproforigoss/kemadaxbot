@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadtestingtool-deployment
+  labels:
+    app: loadtestingtool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadtestingtool
+  template:
+    metadata:
+      labels:
+        app: loadtestingtool
+    spec:
+      containers:
+      - name: loadtestingtool
+        image: loadtestingtoolimage
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: loadtestingtool-configmap
+        livenessProbe:
+          httpGet:
+            path: /hello
+            port: 8080
+
+        
+        
+          
+         
+    
+      
+    
+      

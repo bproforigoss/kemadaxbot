@@ -504,9 +504,27 @@ func main() {
 							log.Panic(err)
 						}
 					}
+				case "Deploy_loadTestingTool":
+					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_loadTestingTool_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
+					if err != nil {
+						log.Debug("/Deploy failed, sending error to chat")
+						msg.Text = fmt.Sprint(err)
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
+					}
 
 				case "Deploy_primeGenerator_debug":
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_primeGenerator_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
+					if err != nil {
+						log.Debug("/Deploy_debug failed, sending error to chat")
+						msg.Text = fmt.Sprint(err)
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
+					}
+				case "Deploy_loadTestingTool_debug":
+					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_loadTestingTool_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
 						log.Debug("/Deploy_debug failed, sending error to chat")
 						msg.Text = fmt.Sprint(err)
