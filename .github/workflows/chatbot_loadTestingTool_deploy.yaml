@@ -1,4 +1,4 @@
-name: Deploy_by_chatbot_primeGenerator
+name: Deploy_by_chatbot_loadTestingTool
 
 on: 
   workflow_dispatch:
