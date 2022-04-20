@@ -238,6 +238,57 @@ func deploy(URL string, PAT string, chatid string) error {
 	return nil
 }
 
+type requestToLoad struct {
+	Url       string `json:"url"`
+	Number    int    `json:"number"`
+	Frequency int    `json:"frequency"`
+	ChatID    int64  `json:"chat_id"`
+}
+
+func loadRequest(URL string, num int, freq int, chatid int64) error {
+
+	client := &http.Client{}
+
+	reqBody := requestToLoad{
+		Url:       URL,
+		Number:    num,
+		Frequency: freq,
+		ChatID:    chatid,
+	}
+
+	reqBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		log.WithError(err).Fatal("loadRequest func marshal JSON failed")
+		return fmt.Errorf("loadRequest func marshal JSON failed: %v", err)
+	}
+
+	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
+	if err != nil {
+		log.WithError(err).Fatal("loadRequest func making new request failed")
+		return fmt.Errorf("loadRequest func making new request failed: %v", err)
+	}
+	r.Header.Set("Content-type", "application/json")
+
+	resp, err := client.Do(r)
+	if err != nil {
+		log.WithError(err).Fatal("Something went wrong while loadRequest func  was sending request to loadTestingTool")
+		return fmt.Errorf("Something went wrong while loadRequest func  was sending request to loadTestingTool: %v", err)
+	}
+
+	defer resp.Body.Close()
+
+	log.Debug("loadTestingTool's HTTP response StatusCode" + fmt.Sprint(resp.StatusCode))
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil && body == nil {
+		log.WithError(err).Fatal("loadTestingTool func could not read response body")
+		return fmt.Errorf("loadTestingTool func could not read response body: %v", err)
+	}
+
+	log.Debug("loadTestingTool's HTTP response body content" + string(json.RawMessage(body)))
+	return nil
+}
+
 type InputsReplicaCount struct {
 	ChatID       string `json:"chatID"`
 	ReplicaCount string `json:"number_of_replicas"`
@@ -493,6 +544,15 @@ func main() {
 					log.Debug("Response arrived from primeGenerator")
 					if _, err := bot.Send(msg); err != nil {
 						log.Panic(err)
+					}
+				case "Load":
+					err := loadRequest("http://loadtestingtool-service", 10, 10, update.Message.Chat.ID)
+					if err != nil {
+						log.Debug("/Load failed, sending error to chat")
+						msg.Text = fmt.Sprint(err)
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 					}
 
 				case "Deploy_primeGenerator":
