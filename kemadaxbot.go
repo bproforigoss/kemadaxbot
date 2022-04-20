@@ -245,12 +245,12 @@ type requestToLoad struct {
 	ChatID    int64  `json:"chat_id"`
 }
 
-func loadRequest(URL string, num int, freq int, chatid int64) error {
+func loadRequest(URL string, chatbotURL string, num int, freq int, chatid int64) error {
 
 	client := &http.Client{}
 
 	reqBody := requestToLoad{
-		Url:       URL,
+		Url:       chatbotURL,
 		Number:    num,
 		Frequency: freq,
 		ChatID:    chatid,
@@ -546,7 +546,7 @@ func main() {
 						log.Panic(err)
 					}
 				case "Load":
-					err := loadRequest("http://loadtestingtool-service", 10, 10, update.Message.Chat.ID)
+					err := loadRequest("http://loadtestingtool-service", "https://kemadaxbot.bprof.gesz.dev", 10, 10, update.Message.Chat.ID)
 					if err != nil {
 						log.Debug("/Load failed, sending error to chat")
 						msg.Text = fmt.Sprint(err)
