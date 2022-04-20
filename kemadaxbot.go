@@ -529,22 +529,26 @@ func main() {
 					}
 
 				case "GenerateBigPrime": //külön függvény goroutine
-					reqFrequencyCounter.Inc()
-					log.Debug("reqFrequencyCounter.Inc()")
-					requestCounter += 1
-					log.Debug("GenerateBigPrime request")
-					respCounter.WithLabelValues("GenerateBigPrime").Inc()
-					start := time.Now()
-					msg.Text = generatePrimeRequest()
-					duration := time.Since(start)
-					respDuration.Observe(duration.Seconds())
-					responseDuration += duration.Seconds()
-					respDurationAvg.Set((responseDuration / requestCounter))
-					respFrequencyCounter.Inc() //szükségtelen
-					log.Debug("Response arrived from primeGenerator")
-					if _, err := bot.Send(msg); err != nil {
-						log.Panic(err)
-					}
+					go func() {
+						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+						reqFrequencyCounter.Inc()
+						log.Debug("reqFrequencyCounter.Inc()")
+						requestCounter += 1
+						log.Debug("GenerateBigPrime request")
+						respCounter.WithLabelValues("GenerateBigPrime").Inc()
+						start := time.Now()
+						msg.Text = generatePrimeRequest()
+						duration := time.Since(start)
+						respDuration.Observe(duration.Seconds())
+						responseDuration += duration.Seconds()
+						respDurationAvg.Set((responseDuration / requestCounter))
+						respFrequencyCounter.Inc() //szükségtelen
+						log.Debug("Response arrived from primeGenerator")
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
+					}()
+
 				case "Load":
 					err := loadRequest("http://loadtestingtool-service", "https://kemadaxbot.bprof.gesz.dev", 10, 10, update.Message.Chat.ID)
 					if err != nil {
