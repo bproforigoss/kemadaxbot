@@ -5,7 +5,7 @@ resources:
 images:
 - name: primegeneratorimage
   newName: ghcr.io/bproforigoss/primegenerator
-  newTag: sha-2b890bb
+  newTag: sha-70a15ee
 configMapGenerator:
 - envs:
   - env/chatbot.env
