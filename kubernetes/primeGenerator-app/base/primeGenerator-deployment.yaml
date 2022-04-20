@@ -19,7 +19,7 @@ spec:
         image: primegeneratorimage
         resources:
           limits:
-            cpu: "10m"
+            cpu: "400m"
         ports:
         - containerPort: 8080
         envFrom:
