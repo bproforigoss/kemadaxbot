@@ -374,6 +374,25 @@ func generatePrimeRequest() string {
 	return sprime
 
 }
+func checkLoadArgs(arg string) string {
+	num, err := strconv.Atoi(arg)
+	if err != nil {
+		log.Debug("/Load command parameter is not number")
+		return "Wrong parameter, only positive whole number is accepted as parameter"
+	} else if num > 500 {
+		log.Debug("/load command parameter is greater than 500")
+		return "Wrong parameter, only number less than 500 is accepted"
+	} else if num == 0 {
+		log.Debug("/load command parameter is zero")
+		return "Wrong parameter, parameter can not be 0"
+	} else if num < 0 {
+		log.Debug("/Load command parameter is less than 0")
+		return "Wrong parameter, parameter must be greater than 0"
+	} else {
+		return ""
+	}
+
+}
 
 func main() {
 
@@ -550,13 +569,39 @@ func main() {
 					}()
 
 				case "Load":
-					err := loadRequest("http://loadtestingtool-service", "https://kemadaxbot.bprof.gesz.dev", 10, 10, update.Message.Chat.ID)
-					if err != nil {
-						log.Debug("/Load failed, sending error to chat")
-						msg.Text = fmt.Sprint(err)
+					args := update.Message.CommandArguments()
+					split := strings.Split(args, ",")
+					message1 := checkLoadArgs(split[0])
+					message2 := checkLoadArgs(split[1])
+					if len(split) != 2 {
+						msg.Text = "Too many arguments"
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
+					} else if message1 != "" {
+						msg.Text = message1
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
+
+					} else if message2 != "" {
+						msg.Text = message2
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
+
+					} else {
+						num, _ := strconv.Atoi(split[0])
+						freq, _ := strconv.Atoi(split[1])
+						err := loadRequest("http://loadtestingtool-service", "https://kemadaxbot.bprof.gesz.dev", num, freq, update.Message.Chat.ID)
+						if err != nil {
+							log.Debug("/Load failed, sending error to chat")
+							msg.Text = fmt.Sprint(err)
+							if _, err := bot.Send(msg); err != nil {
+								log.Panic(err)
+							}
+						}
+
 					}
 
 				case "Deploy_primeGenerator":
