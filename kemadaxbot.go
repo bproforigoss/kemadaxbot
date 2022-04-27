@@ -51,9 +51,6 @@ var (
 		Name: "generatBigPrime_request_frequency_counter",
 		Help: "Number of primeGenerator component responds with prime",
 	})
-
-	requestCounter   float64
-	responseDuration float64
 )
 
 type primePair struct {
@@ -543,20 +540,18 @@ func main() {
 						log.Panic(err)
 					}
 
-				case "GenerateBigPrime": //külön függvény goroutine
+				case "GenerateBigPrime":
 					go func() { //url paraméterként service name
 						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 						reqFrequencyCounter.Inc()
 						log.Debug("reqFrequencyCounter.Inc()")
-						requestCounter += 1
 						log.Debug("GenerateBigPrime request")
 						respCounter.WithLabelValues("GenerateBigPrime").Inc()
 						start := time.Now()
 						msg.Text = generatePrimeRequest()
 						duration := time.Since(start)
 						respDuration.Observe(duration.Seconds())
-						responseDuration += duration.Seconds()
-						respDurationAvg.WithLabelValues("GenerateBigPrime").Set((responseDuration / requestCounter))
+						respDurationAvg.WithLabelValues("GenerateBigPrime").Set(duration.Seconds())
 						log.Debug("Response arrived from primeGenerator")
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
