@@ -29,7 +29,6 @@ func init() {
 	prometheus.MustRegister(respCounter)
 	prometheus.MustRegister(respDurationAvg)
 	prometheus.MustRegister(reqFrequencyCounter)
-	prometheus.MustRegister(respFrequencyCounter)
 }
 
 var (
@@ -43,16 +42,13 @@ var (
 		Help: "Number of primeGenerator component responds with prime",
 	},
 		[]string{"command"})
-	respDurationAvg = prometheus.NewGauge(prometheus.GaugeOpts{
+	respDurationAvg = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "generatBigPrime_request_duration_avg",
 		Help: "Avarage durations primeGenerator component responds with prime",
-	})
+	},
+		[]string{"command"})
 	reqFrequencyCounter = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "generatBigPrime_request_frequency_counter",
-		Help: "Number of primeGenerator component responds with prime",
-	})
-	respFrequencyCounter = prometheus.NewCounter(prometheus.CounterOpts{
-		Name: "generatBigPrime_response_frequency_counter",
 		Help: "Number of primeGenerator component responds with prime",
 	})
 
@@ -548,7 +544,7 @@ func main() {
 					}
 
 				case "GenerateBigPrime": //külön függvény goroutine
-					go func() {
+					go func() { //url paraméterként service name
 						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 						reqFrequencyCounter.Inc()
 						log.Debug("reqFrequencyCounter.Inc()")
@@ -560,8 +556,7 @@ func main() {
 						duration := time.Since(start)
 						respDuration.Observe(duration.Seconds())
 						responseDuration += duration.Seconds()
-						respDurationAvg.Set((responseDuration / requestCounter))
-						respFrequencyCounter.Inc() //szükségtelen
+						respDurationAvg.WithLabelValues("GenerateBigPrime").Add((responseDuration / requestCounter))
 						log.Debug("Response arrived from primeGenerator")
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)

@@ -112,7 +112,7 @@ func main() {
 	}
 
 	loadTestingReqHandler := func(w http.ResponseWriter, req *http.Request) {
-		//set maximum request number adn frequency
+		//set maximum request number and frequency
 		decoder := json.NewDecoder(req.Body)
 		var reqBody RequestBody
 		err := decoder.Decode(&reqBody)
