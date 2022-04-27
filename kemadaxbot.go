@@ -556,7 +556,7 @@ func main() {
 						duration := time.Since(start)
 						respDuration.Observe(duration.Seconds())
 						responseDuration += duration.Seconds()
-						respDurationAvg.WithLabelValues("GenerateBigPrime").Add((responseDuration / requestCounter))
+						respDurationAvg.WithLabelValues("GenerateBigPrime").Set((responseDuration / requestCounter))
 						log.Debug("Response arrived from primeGenerator")
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
