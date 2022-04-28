@@ -120,13 +120,18 @@ func main() {
 			log.WithError(err).Warn("Unmarshal JSON failed at loadTestingHandler")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
-		}
+		} //time package timer --->channel for ciklus
+
 		for i := 0; i < reqBody.RequestNumber; i++ {
+			timer := time.NewTimer(time.Duration(reqBody.RequestFrequency) * time.Second)
 			err := load(reqBody.URL, reqBody.RequestChatId)
 			if err != nil {
 				log.WithError(err).Warn("loadTestingReqHandler calling load func() failed")
 			}
-			time.Sleep(time.Duration(reqBody.RequestFrequency) * time.Second)
+
+			<-timer.C
+
+			//time.Sleep(time.Duration(reqBody.RequestFrequency) * time.Second)
 		}
 
 	}

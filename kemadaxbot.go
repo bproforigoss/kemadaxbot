@@ -541,7 +541,7 @@ func main() {
 					}
 
 				case "GenerateBigPrime":
-					go func() { //url paraméterként service name
+					go func() { //url paraméterként service name empty parameter check
 						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 						reqFrequencyCounter.Inc()
 						log.Debug("reqFrequencyCounter.Inc()")
