@@ -542,6 +542,7 @@ func main() {
 
 				case "GenerateBigPrime":
 					go func() { //url paraméterként service name empty parameter check
+						//szétdebug prometeheus
 						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 						reqFrequencyCounter.Inc()
 						log.Debug("reqFrequencyCounter.Inc()")

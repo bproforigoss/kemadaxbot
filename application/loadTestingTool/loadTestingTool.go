@@ -112,7 +112,6 @@ func main() {
 	}
 
 	loadTestingReqHandler := func(w http.ResponseWriter, req *http.Request) {
-		//set maximum request number and frequency
 		decoder := json.NewDecoder(req.Body)
 		var reqBody RequestBody
 		err := decoder.Decode(&reqBody)
@@ -120,18 +119,22 @@ func main() {
 			log.WithError(err).Warn("Unmarshal JSON failed at loadTestingHandler")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
-		} //time package timer --->channel for ciklus
-
-		for i := 0; i < reqBody.RequestNumber; i++ {
-			timer := time.NewTimer(time.Duration(reqBody.RequestFrequency) * time.Second)
+		}
+		ticker := time.NewTicker(time.Duration(reqBody.RequestFrequency) * time.Second)
+		defer ticker.Stop()
+		reqNum := reqBody.RequestNumber
+		i := 0
+		for range ticker.C {
 			err := load(reqBody.URL, reqBody.RequestChatId)
 			if err != nil {
 				log.WithError(err).Warn("loadTestingReqHandler calling load func() failed")
 			}
+			i++
+			if i == reqNum {
+				break
 
-			<-timer.C
+			}
 
-			//time.Sleep(time.Duration(reqBody.RequestFrequency) * time.Second)
 		}
 
 	}
