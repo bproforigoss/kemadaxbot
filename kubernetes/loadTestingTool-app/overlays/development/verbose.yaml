@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: loadtestingtool
+  name: loadtestingtool-deployment
 spec:
   template:
     spec:
