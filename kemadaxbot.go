@@ -13,6 +13,9 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
@@ -507,7 +510,7 @@ func main() {
 						convertedNum := convert(num)
 						convertedNumFirst := convertedNum[:1]
 						convertedNumRest := convertedNum[1:]
-						convertedNumFirst = strings.Title(convertedNumFirst)
+						convertedNumFirst = cases.Title(language.Hungarian).Title(convertedNumFirst)
 						convertedNum = convertedNumFirst + convertedNumRest
 
 						msg.Text = convertedNum
