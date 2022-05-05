@@ -26,7 +26,7 @@ func init() {
 	log.SetOutput(os.Stdout)
 	rand.Seed(time.Now().UnixNano())
 	prometheus.MustRegister(respDuration)
-	prometheus.MustRegister(respCounter)
+	prometheus.MustRegister(reqCounter)
 	prometheus.MustRegister(respDurationAvg)
 	prometheus.MustRegister(reqFrequencyCounter)
 }
@@ -37,8 +37,8 @@ var (
 		Help:    "Durations till primeGenerator component responds with prime",
 		Buckets: []float64{60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260},
 	})
-	respCounter = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "generatBigPrime_request_counter",
+	reqCounter = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "Command_request_counter",
 		Help: "Number of primeGenerator component responds with prime",
 	},
 		[]string{"command"})
@@ -382,7 +382,7 @@ func checkLoadArgs(arg string) string {
 		log.Debug("/Load command parameter is less than 0")
 		return "Wrong parameter, parameter must be greater than 0"
 	} else {
-		return ""
+		return "" //todo return somthing makes more sense
 	}
 
 }
@@ -486,6 +486,7 @@ func main() {
 
 				switch update.Message.Command() {
 				case "Convert":
+					reqCounter.WithLabelValues("Convert").Inc()
 					log.Debug("Converting number to text")
 					arg := update.Message.CommandArguments()
 
@@ -516,6 +517,7 @@ func main() {
 					}
 
 				case "PrimeFactorization":
+					reqCounter.WithLabelValues("PrimeFactorization").Inc()
 					log.Debug("Prime factorization request")
 					arg := update.Message.CommandArguments()
 
@@ -541,42 +543,51 @@ func main() {
 					}
 
 				case "GenerateBigPrime":
-					go func() { //url paraméterként service name empty parameter check
-						//szétdebug prometeheus
+					go func() {
 						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 						reqFrequencyCounter.Inc()
 						log.Debug("reqFrequencyCounter.Inc()")
 						log.Debug("GenerateBigPrime request")
-						respCounter.WithLabelValues("GenerateBigPrime").Inc()
+						reqCounter.WithLabelValues("GenerateBigPrime").Inc()
 						start := time.Now()
+						log.Debug("Time when calling primegenerator component:%v ", start)
 						msg.Text = generatePrimeRequest()
 						duration := time.Since(start)
+						log.Debug(" PrimeGenerator component response duration in seconds:%v ", duration.Seconds())
 						respDuration.Observe(duration.Seconds())
-						respDurationAvg.WithLabelValues("GenerateBigPrime").Set(duration.Seconds())
-						log.Debug("Response arrived from primeGenerator")
+						//respDurationAvg.WithLabelValues("GenerateBigPrime").Set(duration.Seconds())
+						log.Debug("Response arrived from primeGenerator to chat")
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
 					}()
 
-				case "Load":
+				case "Load": //url paraméterként service name empty parameter check
+					reqCounter.WithLabelValues("Load").Inc()
 					args := update.Message.CommandArguments()
 					split := strings.Split(args, ",")
-					message1 := checkLoadArgs(split[0])
-					message2 := checkLoadArgs(split[1])
-					if len(split) != 2 {
+					arg1 := checkLoadArgs(split[0])
+					arg2 := checkLoadArgs(split[1])
+					arg3 := split[2]
+					if len(split) > 3 {
 						msg.Text = "Too many arguments"
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
-					} else if message1 != "" {
-						msg.Text = message1
+					} else if len(split) < 3 {
+						msg.Text = "Not enough arguments"
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
 
-					} else if message2 != "" {
-						msg.Text = message2
+					} else if arg1 != "" {
+						msg.Text = arg2
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
+
+					} else if arg2 != "" {
+						msg.Text = arg2
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
@@ -584,7 +595,7 @@ func main() {
 					} else {
 						num, _ := strconv.Atoi(split[0])
 						freq, _ := strconv.Atoi(split[1])
-						err := loadRequest("http://loadtestingtool-service", "https://kemadaxbot.bprof.gesz.dev", num, freq, update.Message.Chat.ID)
+						err := loadRequest("http://loadtestingtool-service", arg3, num, freq, update.Message.Chat.ID)
 						if err != nil {
 							log.Debug("/Load failed, sending error to chat")
 							msg.Text = fmt.Sprint(err)
@@ -596,6 +607,7 @@ func main() {
 					}
 
 				case "Deploy_primeGenerator":
+					reqCounter.WithLabelValues("Deploy_primeGenerator").Inc()
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_primeGenerator_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
 						log.Debug("/Deploy failed, sending error to chat")
@@ -605,6 +617,7 @@ func main() {
 						}
 					}
 				case "Deploy_loadTestingTool":
+					reqCounter.WithLabelValues("Deploy_loadTestingTool").Inc()
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_loadTestingTool_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
 						log.Debug("/Deploy failed, sending error to chat")
@@ -615,6 +628,7 @@ func main() {
 					}
 
 				case "Deploy_primeGenerator_debug":
+					reqCounter.WithLabelValues("Deploy_primeGenerator_debug").Inc()
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_primeGenerator_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
 						log.Debug("/Deploy_debug failed, sending error to chat")
@@ -624,6 +638,7 @@ func main() {
 						}
 					}
 				case "Deploy_loadTestingTool_debug":
+					reqCounter.WithLabelValues("Deploy_loadTestingTool_debug").Inc()
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_loadTestingTool_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
 						log.Debug("/Deploy_debug failed, sending error to chat")
@@ -634,6 +649,7 @@ func main() {
 					}
 
 				case "SetReplicaCount":
+					reqCounter.WithLabelValues("SetReplicaCount").Inc()
 					arg := update.Message.CommandArguments()
 					num, err := strconv.Atoi(arg)
 					if err != nil {
@@ -673,6 +689,7 @@ func main() {
 					}
 
 				case "Ping":
+					reqCounter.WithLabelValues("Ping").Inc()
 					log.Debug("Responding pong, to /ping command")
 					msg.Text = "pong"
 					if _, err := bot.Send(msg); err != nil {
