@@ -440,30 +440,24 @@ func main() {
 		log.Debug(req.URL.Path[len(req.URL.Path)-10:])
 		log.Debug(randomURL)
 
-		//for _, v := range randomURL {
-			//log.Debug(v)
-			//if v == req.URL.Path[len(req.URL.Path)-10:] {
-				update := MessageFromGitHub{}
-				log.Debug("Request from GitHub to responseAPI")
-				body, err := ioutil.ReadAll(req.Body)
-				if err != nil {
-					log.WithError(err).Warn("responseAPI could not read request body")
-				}
-				err = json.Unmarshal(body, &update)
-				if err != nil {
-					log.WithError(err).Warn("responseAPI could not Unmarshal request JSON")
-				}
-				chatid, _ := strconv.ParseInt(update.ChatID, 10, 64)
-				msg := tgbotapi.NewMessage(chatid, "Process completed")
-				if _, err := bot.Send(msg); err != nil {
-					log.WithError(err).Warn("responseAPI could not send a message to chat")
-				}
-				
-			
+		update := MessageFromGitHub{}
+		log.Debug("Request from GitHub to responseAPI")
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			log.WithError(err).Warn("responseAPI could not read request body")
+		}
+		err = json.Unmarshal(body, &update)
+		if err != nil {
+			log.WithError(err).Warn("responseAPI could not Unmarshal request JSON")
+		}
+		chatid, _ := strconv.ParseInt(update.ChatID, 10, 64)
+		msg := tgbotapi.NewMessage(chatid, "Process is completed")
+		if _, err := bot.Send(msg); err != nil {
+			log.WithError(err).Warn("responseAPI could not send a message to chat")
+		}
 
-		
+	}
 
-	
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/responseAPI/", responseAPIHandler)
