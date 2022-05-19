@@ -563,9 +563,6 @@ func main() {
 					reqCounter.WithLabelValues("Load").Inc()
 					args := update.Message.CommandArguments()
 					split := strings.Split(args, ",")
-					arg1 := checkLoadArgs(split[0])
-					arg2 := checkLoadArgs(split[1])
-					arg3 := split[2]
 					if len(split) > 3 {
 						msg.Text = "Too many arguments"
 						if _, err := bot.Send(msg); err != nil {
@@ -577,14 +574,14 @@ func main() {
 							log.Panic(err)
 						}
 
-					} else if arg1 != "" {
-						msg.Text = arg1
+					} else if checkLoadArgs(split[0]) != "" {
+						msg.Text = checkLoadArgs(split[0])
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
 
-					} else if arg2 != "" {
-						msg.Text = arg2
+					} else if checkLoadArgs(split[1]) != "" {
+						msg.Text = checkLoadArgs(split[1])
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
@@ -592,7 +589,8 @@ func main() {
 					} else {
 						num, _ := strconv.Atoi(split[0])
 						freq, _ := strconv.Atoi(split[1])
-						err := loadRequest("http://loadtestingtool-service", arg3, num, freq, update.Message.Chat.ID)
+						URL := split[2]
+						err := loadRequest("http://loadtestingtool-service", URL, num, freq, update.Message.Chat.ID)
 						if err != nil {
 							log.Debug("/Load failed, sending error to chat")
 							msg.Text = fmt.Sprint(err)
