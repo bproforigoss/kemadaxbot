@@ -437,8 +437,8 @@ func main() {
 		}
 	}
 	responseAPIHandler := func(w http.ResponseWriter, req *http.Request) {
-		log.Debug(req.URL.Path[len(req.URL.Path)-10:])
-		log.Debug(randomURL)
+		//log.Debug(req.URL.Path[len(req.URL.Path)-10:])
+		//log.Debug(randomURL)
 
 		update := MessageFromGitHub{}
 		log.Debug("Request from GitHub to responseAPI")
@@ -460,7 +460,7 @@ func main() {
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/hello", helloHandler)
-	http.HandleFunc("/responseAPI/", responseAPIHandler)
+	http.HandleFunc("/responseAPI", responseAPIHandler)
 
 	updates := bot.ListenForWebhook("/")
 
