@@ -578,7 +578,7 @@ func main() {
 						}
 
 					} else if arg1 != "" {
-						msg.Text = arg2
+						msg.Text = arg1
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
