@@ -42,7 +42,7 @@ type TelegramBotRequestMessageChat struct {
 	ID   int    `json:"id"`
 	Type string `json:"type"`
 }
-type RequestBody struct {
+type RequestBody struct { //Ez veszélyes ---->külön package
 	URL              string `json:"url"`
 	RequestNumber    int    `json:"number"`
 	RequestFrequency int    `json:"frequency"`
