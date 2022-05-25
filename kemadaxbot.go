@@ -378,9 +378,6 @@ func checkLoadArgs(arg string) string {
 	} else if num > 500 {
 		log.Debug("/load command parameter is greater than 500")
 		return "Wrong parameter, only number less than 500 is accepted"
-	} else if num == 0 {
-		log.Debug("/load command parameter is zero")
-		return "Wrong parameter, parameter can not be 0"
 	} else if num < 0 {
 		log.Debug("/Load command parameter is less than 0")
 		return "Wrong parameter, parameter must be greater than 0"
