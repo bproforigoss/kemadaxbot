@@ -13,5 +13,5 @@ configMapGenerator:
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 replicas:
-- count: 4
+- count: 1
   name: primegenerator-deployment
