@@ -2,10 +2,11 @@ resources:
 - primeGenerator-service.yaml
 - primeGenerator-deployment.yaml
 - primeGenerator-servicemonitor.yaml
+- primeGenerator-autoscaler.yaml
 images:
 - name: primegeneratorimage
   newName: ghcr.io/bproforigoss/primegenerator
-  newTag: sha-51c4870
+  newTag: sha-e7864c8
 configMapGenerator:
 - envs:
   - env/chatbot.env

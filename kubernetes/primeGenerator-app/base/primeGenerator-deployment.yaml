@@ -18,6 +18,8 @@ spec:
       - name: primegenerator
         image: primegeneratorimage
         resources:
+          requests:
+            cpu: "100m"
           limits:
             cpu: "100m"
         ports:
