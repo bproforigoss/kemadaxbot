@@ -6,10 +6,10 @@ resources:
 images:
 - name: primegeneratorimage
   newName: ghcr.io/bproforigoss/primegenerator
-  newTag: sha-e7864c8
+  newTag: sha-116b3ef
 configMapGenerator:
 - envs:
   - env/chatbot.env
   name: primegenerator-configmap
 apiVersion: kustomize.config.k8s.io/v1beta1
-
+kind: Kustomization
