@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	//"golang.org/x/text/cases"
-	//"golang.org/x/text/language"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -501,7 +501,9 @@ func main() {
 						convertedNum := convert(num)
 						convertedNumFirst := convertedNum[:1]
 						convertedNumRest := convertedNum[1:]
-						convertedNumFirst = strings.Title(convertedNumFirst) //cases.Title(language.Hungarian)
+						//convertedNumFirst = strings.Title(convertedNumFirst) //cases.Title(language.Hungarian)
+						c := cases.Title(language.Hungarian)
+						convertedNumFirst = c.String(convertedNumFirst)
 						convertedNum = convertedNumFirst + convertedNumRest
 
 						msg.Text = convertedNum
