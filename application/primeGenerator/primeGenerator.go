@@ -34,8 +34,8 @@ func IsPrime(num int) bool {
 }
 
 func generateBigPrime() int {
-	min := 100000000
-	max := 1000000000
+	min := 1000000
+	max := 10000000
 	randint := rand.Intn(max-min+1) + min
 	for i := randint; i > 2; i-- {
 
