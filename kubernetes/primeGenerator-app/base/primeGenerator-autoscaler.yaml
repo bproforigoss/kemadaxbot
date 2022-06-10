@@ -2,17 +2,15 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: primegenerator-deployment
+  namespace: chatbot-app-development
 spec:
+  maxReplicas: 4
+  minReplicas: 1
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: primegenerator-deployment
-  minReplicas: 1
-  maxReplicas: 4
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
+  targetCPUUtilizationPercentage: 75
+
+
+
