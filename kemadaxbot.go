@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ChatbotStructs"
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
@@ -13,14 +14,14 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	log "github.com/sirupsen/logrus"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func init() {
@@ -54,18 +55,18 @@ var (
 		Name: "generatBigPrime_request_frequency_counter",
 		Help: "Number of primeGenerator component responds with prime",
 	})
+
+	randomURL = make([]string, 0)
 )
 
-type primePair struct {
-	factor    int
-	remainder int
-}
-type factorizedInt []primePair
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+type factorizedInt []ChatbotStructs.primePair
 
 func (f factorizedInt) factorsWithCommas() string {
 	factors := ""
 	for i := 0; i < len(f); i++ {
-		factors += fmt.Sprint(f[i].factor) + ", "
+		factors += fmt.Sprint(f[i].factor) + ", " //instead of space, space character
 	}
 	return factors[:len(factors)-2]
 }
@@ -77,7 +78,7 @@ func (f factorizedInt) factorTree() string {
 	for i := 0; i < len(f); i++ {
 		if CountDigits(f[i].remainder) < numDigits {
 			numDigits = CountDigits(f[i].remainder)
-			offset += "  "
+			offset += "  " //instead of space, space character
 			factorTree += offset + fmt.Sprint(f[i].remainder) + "|" + fmt.Sprint(f[i].factor) + "\n"
 		} else {
 			factorTree += offset + fmt.Sprint(f[i].remainder) + "|" + fmt.Sprint(f[i].factor) + "\n"
@@ -86,7 +87,7 @@ func (f factorizedInt) factorTree() string {
 	}
 	lastRemainder := f[len(f)-1].remainder / f[len(f)-1].factor
 	if CountDigits(lastRemainder) < CountDigits(f[len(f)-1].remainder) {
-		offset += "  "
+		offset += "  " //instead of space, space character
 
 	}
 	factorTree += offset + fmt.Sprint(lastRemainder) + "|"
@@ -119,7 +120,7 @@ func primeFactorization(num int) factorizedInt {
 
 		if IsPrime(i) && num > 1 {
 			for num%i == 0 {
-				pair := primePair{i, num}
+				pair := ChatbotStructs.primePair{i, num}
 				f = append(f, pair)
 
 				num = num / i
@@ -141,7 +142,7 @@ func convert(num int) string {
 	var tizes = map[int]string{
 		1: "", 2: "", 3: "harminc", 4: "negyven", 5: "ötven", 6: "hatvan", 7: "hetven", 8: "nyolcvan", 9: "kilencven",
 	}
-	if num < 2000 || num > 2000 && num%1000 == 0 {
+	if (num < 2000) || (num > 2000 && num%1000 == 0) {
 
 		if num < 30 {
 			return egyes[num]
@@ -182,22 +183,14 @@ func convert(num int) string {
 	}
 }
 
-type InputsDeploy struct {
-	ChatID string `json:"chatID"`
-}
-type RequestToGithubDeploy struct {
-	Ref    string       `json:"ref"`
-	Inputs InputsDeploy `json:"inputs"`
-}
-
 func deploy(URL string, PAT string, chatid string) error {
 	encoded := base64.StdEncoding.EncodeToString([]byte(PAT))
 
 	client := &http.Client{}
 
-	reqBody := RequestToGithubDeploy{
+	reqBody := ChatbotStructs.RequestToGithubDeploy{
 		Ref:    "main",
-		Inputs: InputsDeploy{ChatID: chatid},
+		Inputs: ChatbotStructs.InputsDeploy{ChatID: chatid},
 	}
 
 	reqBytes, err := json.Marshal(reqBody)
@@ -234,18 +227,11 @@ func deploy(URL string, PAT string, chatid string) error {
 	return nil
 }
 
-type requestToLoad struct {
-	Url       string `json:"url"`
-	Number    int    `json:"number"`
-	Frequency int    `json:"frequency"`
-	ChatID    int64  `json:"chat_id"`
-}
-
 func loadRequest(URL string, chatbotURL string, num int, freq int, chatid int64) error {
 
 	client := &http.Client{}
 
-	reqBody := requestToLoad{
+	reqBody := ChatbotStructs.requestToLoad{
 		Url:       chatbotURL,
 		Number:    num,
 		Frequency: freq,
@@ -285,24 +271,14 @@ func loadRequest(URL string, chatbotURL string, num int, freq int, chatid int64)
 	return nil
 }
 
-type InputsReplicaCount struct {
-	ChatID       string `json:"chatID"`
-	ReplicaCount string `json:"number_of_replicas"`
-	CustomUrl    string `json:"customURL"`
-}
-type RequestToGithubReplicaCount struct {
-	Ref    string             `json:"ref"`
-	Inputs InputsReplicaCount `json:"inputs"`
-}
-
 func setReplicaCount(URL string, PAT string, chatid string, replicaCount string, customUrl string) error {
 	encoded := base64.StdEncoding.EncodeToString([]byte(PAT))
 
 	client := &http.Client{}
 
-	reqBody := RequestToGithubReplicaCount{
+	reqBody := ChatbotStructs.RequestToGithubReplicaCount{
 		Ref:    "main",
-		Inputs: InputsReplicaCount{ChatID: chatid, ReplicaCount: replicaCount, CustomUrl: customUrl},
+		Inputs: ChatbotStructs.InputsReplicaCount{ChatID: chatid, ReplicaCount: replicaCount, CustomUrl: customUrl},
 	}
 
 	reqBytes, err := json.Marshal(reqBody)
@@ -339,14 +315,6 @@ func setReplicaCount(URL string, PAT string, chatid string, replicaCount string,
 	return nil
 }
 
-type MessageFromGitHub struct {
-	ChatID string `json:"chat_id"`
-}
-
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-var randomURL = make([]string, 0)
-
 func RandStringBytes(n int) string {
 	b := make([]byte, n)
 	for i := range b {
@@ -354,7 +322,7 @@ func RandStringBytes(n int) string {
 	}
 	return string(b)
 }
-func generatePrimeRequest() string {
+func generatePrimeRequest() string { //return err
 	resp, err := http.Get("http://primegenerator-service")
 	if err != nil {
 		log.WithError(err).Warning("Something went wrong while generatePrimeRequest func was sending request to primegenerator-service")
@@ -391,7 +359,7 @@ func main() {
 
 	if len(os.Args) > 1 && os.Args[1] == "-v" {
 		log.SetLevel(log.DebugLevel)
-		log.Debug("Set loglevel to Debug")
+		log.Debug("Set log level to Debug")
 	} else {
 		log.SetLevel(log.WarnLevel)
 	}
@@ -404,8 +372,7 @@ func main() {
 
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
-
-		log.WithError(err).Fatal("Something wrong with telegram token")
+		log.WithError(err).Fatal("Something went wrong while setting telegram token")
 
 	}
 
@@ -414,7 +381,7 @@ func main() {
 
 	_, err = bot.SetWebhook(webHookURL)
 	if err != nil {
-		log.WithError(err).Fatal("Something wrong with webhook")
+		log.WithError(err).Fatal("Something went wrong while setting webhook")
 	}
 
 	info, err := bot.GetWebhookInfo()
@@ -425,6 +392,7 @@ func main() {
 	if info.LastErrorDate != 0 {
 		log.Printf("Telegram callback failed: %s", info.LastErrorMessage)
 	}
+
 	helloHandler := func(w http.ResponseWriter, req *http.Request) {
 		log.Debug("Request for saying Hello")
 		_, err := fmt.Fprintf(w, "Hello %s", os.Getenv("USER"))
@@ -437,7 +405,7 @@ func main() {
 		//log.Debug(req.URL.Path[len(req.URL.Path)-10:])
 		//log.Debug(randomURL)
 
-		update := MessageFromGitHub{}
+		update := ChatbotStructs.MessageFromGitHub{}
 		log.Debug("Request from GitHub to responseAPI")
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
@@ -445,7 +413,7 @@ func main() {
 		}
 		err = json.Unmarshal(body, &update)
 		if err != nil {
-			log.WithError(err).Warn("responseAPI could not Unmarshal request JSON")
+			log.WithError(err).Warn("responseAPI could not Unmarshal request's JSON")
 		}
 		chatid, _ := strconv.ParseInt(update.ChatID, 10, 64)
 		msg := tgbotapi.NewMessage(chatid, "Process is completed")

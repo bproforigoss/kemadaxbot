@@ -10,6 +10,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/bproforigoss/kemadaxbot/Structs/ChatbotStructs"
+
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	log "github.com/sirupsen/logrus"
@@ -42,12 +44,13 @@ type TelegramBotRequestMessageChat struct {
 	ID   int    `json:"id"`
 	Type string `json:"type"`
 }
-type RequestBody struct { //Ez veszélyes ---->külön package
+
+/*type RequestBody struct { //Ez veszélyes ---->külön package
 	URL              string `json:"url"`
 	RequestNumber    int    `json:"number"`
 	RequestFrequency int    `json:"frequency"`
 	RequestChatId    int    `json:"chat_id"`
-}
+}*/
 
 /*{"update_id":1,"message":{"message_id":1,"date":1649352456,"chat":{"id":2006716105,"type":"private"},
 "entities":[{"type":"bot_command","length":17}],"text":"/GenerateBigPrime"}*/
@@ -113,7 +116,7 @@ func main() {
 
 	loadTestingReqHandler := func(w http.ResponseWriter, req *http.Request) {
 		decoder := json.NewDecoder(req.Body)
-		var reqBody RequestBody
+		var reqBody ChatbotStructs.RequestToLoad
 		err := decoder.Decode(&reqBody)
 		if err != nil {
 			log.WithError(err).Warn("Unmarshal JSON failed at loadTestingHandler")
