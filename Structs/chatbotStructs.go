@@ -1,4 +1,4 @@
-package chatbotStructs
+package ChatbotStructs
 
 type primePair struct {
 	factor    int
