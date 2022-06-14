@@ -9,10 +9,11 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"src/github.com/bproforigoss/kemadaxbot/Structs/ChatbotStructs"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/bproforigoss/kemadaxbot/Structs/ChatbotStructs"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	log "github.com/sirupsen/logrus"
