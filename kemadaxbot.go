@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	ChatbotStructs "github.com/bproforigoss/kemadaxbot/Structs"
+	"Structs/ChatbotStructs"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	log "github.com/sirupsen/logrus"
