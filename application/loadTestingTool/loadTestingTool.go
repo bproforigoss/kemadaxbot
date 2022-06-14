@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/bproforigoss/kemadaxbot/Structs/ChatbotStructs"
+	"src/github.com/bproforigoss/kemadaxbot/Structs/ChatbotStructs"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 

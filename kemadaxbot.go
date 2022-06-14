@@ -1,7 +1,6 @@
 package main
 
 import (
-	"ChatbotStructs"
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
@@ -10,6 +9,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"src/github.com/bproforigoss/kemadaxbot/Structs/ChatbotStructs"
 	"strconv"
 	"strings"
 	"time"
