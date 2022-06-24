@@ -68,7 +68,7 @@ type factorizedInt []chatbotstructs.PrimePair
 func (f factorizedInt) factorsWithCommas() string {
 	factors := ""
 	for i := 0; i < len(f); i++ {
-		factors += fmt.Sprint(f[i].Factor) + "," + "'\t'"
+		factors += fmt.Sprint(f[i].Factor) + "," + " "
 	}
 	return factors[:len(factors)-2]
 }
@@ -80,7 +80,7 @@ func (f factorizedInt) factorTree() string {
 	for i := 0; i < len(f); i++ {
 		if CountDigits(f[i].Remainder) < numDigits {
 			numDigits = CountDigits(f[i].Remainder)
-			offset += "'\t''\t'"
+			offset += "  "
 			factorTree += offset + fmt.Sprint(f[i].Remainder) + "|" + fmt.Sprint(f[i].Factor) + "\n"
 		} else {
 			factorTree += offset + fmt.Sprint(f[i].Remainder) + "|" + fmt.Sprint(f[i].Factor) + "\n"
@@ -89,7 +89,7 @@ func (f factorizedInt) factorTree() string {
 	}
 	lastRemainder := f[len(f)-1].Remainder / f[len(f)-1].Factor
 	if CountDigits(lastRemainder) < CountDigits(f[len(f)-1].Remainder) {
-		offset += "'\t''\t'"
+		offset += "  "
 
 	}
 	factorTree += offset + fmt.Sprint(lastRemainder) + "|"
