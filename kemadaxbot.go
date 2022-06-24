@@ -122,7 +122,7 @@ func primeFactorization(num int) factorizedInt {
 
 		if IsPrime(i) && num > 1 {
 			for num%i == 0 {
-				pair := chatbotstructs.PrimePair{i, num}
+				pair := chatbotstructs.PrimePair{Factor: i, Remainder: num}
 				f = append(f, pair)
 
 				num = num / i
