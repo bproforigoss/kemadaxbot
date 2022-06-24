@@ -1,8 +1,8 @@
-package ChatbotStructs
+package chatbotstructs
 
-type primePair struct {
-	factor    int
-	remainder int
+type PrimePair struct {
+	Factor    int
+	Remainder int
 }
 
 type InputsDeploy struct {
@@ -14,7 +14,7 @@ type RequestToGithubDeploy struct {
 	Inputs InputsDeploy `json:"inputs"`
 }
 
-type requestToLoad struct {
+type RequestToLoad struct {
 	Url       string `json:"url"`
 	Number    int    `json:"number"`
 	Frequency int    `json:"frequency"`

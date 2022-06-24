@@ -13,7 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"ChatbotStructs"
+	"github.com/bproforigoss/kemadaxbot/chatboterrors"
+	"github.com/bproforigoss/kemadaxbot/chatbotstructs"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	log "github.com/sirupsen/logrus"
@@ -62,33 +63,33 @@ var (
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-type factorizedInt []ChatbotStructs.primePair
+type factorizedInt []chatbotstructs.PrimePair
 
 func (f factorizedInt) factorsWithCommas() string {
 	factors := ""
 	for i := 0; i < len(f); i++ {
-		factors += fmt.Sprint(f[i].factor) + ", " //instead of space, space character
+		factors += fmt.Sprint(f[i].Factor) + "," + "\t"
 	}
 	return factors[:len(factors)-2]
 }
 func (f factorizedInt) factorTree() string {
 	factorTree := ""
 	offset := ""
-	numDigits := CountDigits(f[0].remainder)
+	numDigits := CountDigits(f[0].Remainder)
 
 	for i := 0; i < len(f); i++ {
-		if CountDigits(f[i].remainder) < numDigits {
-			numDigits = CountDigits(f[i].remainder)
-			offset += "  " //instead of space, space character
-			factorTree += offset + fmt.Sprint(f[i].remainder) + "|" + fmt.Sprint(f[i].factor) + "\n"
+		if CountDigits(f[i].Remainder) < numDigits {
+			numDigits = CountDigits(f[i].Remainder)
+			offset += "\t" + "\t"
+			factorTree += offset + fmt.Sprint(f[i].Remainder) + "|" + fmt.Sprint(f[i].Factor) + "\n"
 		} else {
-			factorTree += offset + fmt.Sprint(f[i].remainder) + "|" + fmt.Sprint(f[i].factor) + "\n"
+			factorTree += offset + fmt.Sprint(f[i].Remainder) + "|" + fmt.Sprint(f[i].Factor) + "\n"
 		}
 
 	}
-	lastRemainder := f[len(f)-1].remainder / f[len(f)-1].factor
-	if CountDigits(lastRemainder) < CountDigits(f[len(f)-1].remainder) {
-		offset += "  " //instead of space, space character
+	lastRemainder := f[len(f)-1].Remainder / f[len(f)-1].Factor
+	if CountDigits(lastRemainder) < CountDigits(f[len(f)-1].Remainder) {
+		offset += "\t" + "\t"
 
 	}
 	factorTree += offset + fmt.Sprint(lastRemainder) + "|"
@@ -121,7 +122,7 @@ func primeFactorization(num int) factorizedInt {
 
 		if IsPrime(i) && num > 1 {
 			for num%i == 0 {
-				pair := ChatbotStructs.primePair{i, num}
+				pair := chatbotstructs.PrimePair{i, num}
 				f = append(f, pair)
 
 				num = num / i
@@ -184,25 +185,24 @@ func convert(num int) string {
 	}
 }
 
+//done
 func deploy(URL string, PAT string, chatid string) error {
 	encoded := base64.StdEncoding.EncodeToString([]byte(PAT))
 
 	client := &http.Client{}
 
-	reqBody := ChatbotStructs.RequestToGithubDeploy{
+	reqBody := chatbotstructs.RequestToGithubDeploy{
 		Ref:    "main",
-		Inputs: ChatbotStructs.InputsDeploy{ChatID: chatid},
+		Inputs: chatbotstructs.InputsDeploy{ChatID: chatid},
 	}
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		log.WithError(err).Fatal("deploy func marshal JSON failed")
 		return fmt.Errorf("deploy func marshal JSON failed: %v", err)
 	}
 
 	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
 	if err != nil {
-		log.WithError(err).Fatal("deploy func making new request failed")
 		return fmt.Errorf("deploy func making new request failed: %v", err)
 	}
 	r.Header.Set("Content-type", "application/vnd.github.v3+json")
@@ -210,17 +210,15 @@ func deploy(URL string, PAT string, chatid string) error {
 
 	resp, err := client.Do(r)
 	if err != nil {
-		log.WithError(err).Fatal("Something went wrong while deploy func  was sending request to GitHub API")
-		return fmt.Errorf("Something went wrong while deploy func  was sending request to GitHub API: %v", err)
+		return fmt.Errorf("something went wrong while deploy func  was sending request to GitHub API: %v", err)
 	}
 
 	defer resp.Body.Close()
 
-	log.Debug(" GitHub API's HTTP response StatusCode" + fmt.Sprint(resp.StatusCode))
+	log.Debug("GitHub API's HTTP response StatusCode" + fmt.Sprint(resp.StatusCode))
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil && body == nil {
-		log.WithError(err).Fatal("deploy func could not read request body")
 		return fmt.Errorf("deploy func could not read request body: %v", err)
 	}
 
@@ -228,34 +226,30 @@ func deploy(URL string, PAT string, chatid string) error {
 	return nil
 }
 
-func loadRequest(URL string, chatbotURL string, num int, freq int, chatid int64) error {
-
+//done
+func loadRequest(URL string, chatbotURL string, num int, chatid int64) error {
 	client := &http.Client{}
 
-	reqBody := ChatbotStructs.requestToLoad{
-		Url:       chatbotURL,
-		Number:    num,
-		Frequency: freq,
-		ChatID:    chatid,
+	reqBody := chatbotstructs.RequestToLoad{
+		Url:    chatbotURL,
+		Number: num,
+		ChatID: chatid,
 	}
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		log.WithError(err).Fatal("loadRequest func marshal JSON failed")
 		return fmt.Errorf("loadRequest func marshal JSON failed: %v", err)
 	}
 
 	r, _ := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
 	if err != nil {
-		log.WithError(err).Fatal("loadRequest func making new request failed")
 		return fmt.Errorf("loadRequest func making new request failed: %v", err)
 	}
 	r.Header.Set("Content-type", "application/json")
 
 	resp, err := client.Do(r)
 	if err != nil {
-		log.WithError(err).Fatal("Something went wrong while loadRequest func  was sending request to loadTestingTool")
-		return fmt.Errorf("Something went wrong while loadRequest func  was sending request to loadTestingTool: %v", err)
+		return fmt.Errorf("something went wrong while loadRequest func was sending request to loadTestingTool: %v", err)
 	}
 
 	defer resp.Body.Close()
@@ -264,8 +258,7 @@ func loadRequest(URL string, chatbotURL string, num int, freq int, chatid int64)
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil && body == nil {
-		log.WithError(err).Fatal("loadTestingTool func could not read response body")
-		return fmt.Errorf("loadTestingTool func could not read response body: %v", err)
+		return fmt.Errorf("loadRequest func could not read response body: %v", err)
 	}
 
 	log.Debug("loadTestingTool's HTTP response body content" + string(json.RawMessage(body)))
@@ -277,20 +270,18 @@ func setReplicaCount(URL string, PAT string, chatid string, replicaCount string,
 
 	client := &http.Client{}
 
-	reqBody := ChatbotStructs.RequestToGithubReplicaCount{
+	reqBody := chatbotstructs.RequestToGithubReplicaCount{
 		Ref:    "main",
-		Inputs: ChatbotStructs.InputsReplicaCount{ChatID: chatid, ReplicaCount: replicaCount, CustomUrl: customUrl},
+		Inputs: chatbotstructs.InputsReplicaCount{ChatID: chatid, ReplicaCount: replicaCount, CustomUrl: customUrl},
 	}
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		log.WithError(err).Fatal("setReplicaCount func marshal JSON failed")
 		return fmt.Errorf("setReplicaCountfunc marshal JSON failed: %v", err)
 	}
 
 	r, err := http.NewRequest("POST", URL, bytes.NewBuffer(reqBytes))
 	if err != nil {
-		log.WithError(err).Fatal("setReplicaCount func making new request failed")
 		return fmt.Errorf("setReplicaCount func making new request failed: %v", err)
 	}
 	r.Header.Set("Content-type", "application/vnd.github.v3+json")
@@ -298,21 +289,19 @@ func setReplicaCount(URL string, PAT string, chatid string, replicaCount string,
 
 	resp, err := client.Do(r)
 	if err != nil {
-		log.WithError(err).Fatal("Something went wrong while setReplicaCount func was sending request to GitHub API")
-		return fmt.Errorf("Something went wrong while setReplicaCount func was sending request to GitHub API: %v", err)
+		return fmt.Errorf("something went wrong while setReplicaCount func was sending request to GitHub API: %v", err)
 	}
 
 	defer resp.Body.Close()
 
-	log.Debug(" GitHub API's HTTP response StatusCode" + fmt.Sprint(resp.StatusCode))
+	log.Debug("GitHub API's HTTP response StatusCode:" + fmt.Sprint(resp.StatusCode) + "(setReplicaCount func)") //szebben?
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil && body == nil {
-		log.WithError(err).Fatal("setReplicaCount func could not read request body")
 		return fmt.Errorf("setReplicaCount func could not read request body: %v", err)
 	}
 
-	log.Debug(" GitHub API's HTTP response body content" + string(json.RawMessage(body)))
+	log.Debug("GitHub API's HTTP response body content:" + string(json.RawMessage(body)) + "(setReplicaCount func)") //szebben?
 	return nil
 }
 
@@ -323,7 +312,7 @@ func RandStringBytes(n int) string {
 	}
 	return string(b)
 }
-func generatePrimeRequest() string { //return err
+func generatePrimeRequest() string {
 	resp, err := http.Get("http://primegenerator-service")
 	if err != nil {
 		log.WithError(err).Warning("Something went wrong while generatePrimeRequest func was sending request to primegenerator-service")
@@ -339,19 +328,76 @@ func generatePrimeRequest() string { //return err
 	return sprime
 
 }
-func checkLoadArgs(arg string) string {
+func checkLoadArgs(args string) error {
+	log.Debug("Checking Load command args")
+	var err error
+	split := strings.Split(args, ",")
+	num, err := strconv.Atoi(split[0])
+	if err != nil {
+		return chatboterrors.ErrParamaterIsNotNumber
+
+	} else {
+
+		if len(split) != 2 {
+			return chatboterrors.ErrWrongInsufficientNumberOfParameter
+
+		} else if strings.ContainsAny(split[1], " ") {
+			return chatboterrors.ErrParamaterIsInvalidUrl
+		} else if num > 500 {
+			return chatboterrors.ErrParamaterIsTooLarge
+
+		} else if num < 1 {
+			return chatboterrors.ErrParamaterIsToosmall
+
+		} else {
+			return nil
+		}
+
+	}
+
+}
+func checkSetReplicaCountArg(arg string) error {
+	log.Debug("Checking SetReplicaCount command arg")
+	var err error
 	num, err := strconv.Atoi(arg)
 	if err != nil {
-		log.Debug("/Load command parameter is not number")
-		return "Wrong parameter, only positive whole number is accepted as parameter"
-	} else if num > 500 {
-		log.Debug("/load command parameter is greater than 500")
-		return "Wrong parameter, only number less than 500 is accepted"
-	} else if num < 0 {
-		log.Debug("/Load command parameter is less than 0")
-		return "Wrong parameter, parameter must be greater than 0"
+		return chatboterrors.ErrParamaterIsNotNumber
+	} else if num > 50 {
+		return chatboterrors.ErrParamaterIsTooLargeSetReplicaCount
+	} else if num < 1 {
+		return chatboterrors.ErrParamaterIsToosmallSetReplicaCount
 	} else {
-		return "" //todo return somthing makes more sense
+		return nil
+	}
+
+}
+func checkPrimeFactorizationArg(arg string) error {
+	log.Debug("Checking PrimeFactorization command arg")
+	var err error
+	num, err := strconv.Atoi(arg)
+	if err != nil {
+		return chatboterrors.ErrParamaterIsNotNumber
+	} else if num < 2 {
+		return chatboterrors.ErrParamaterIsToosmallPrimeFactorization
+	} else if IsPrime(num) {
+		return chatboterrors.ErrParamaterIsPrime
+	} else {
+		return nil
+	}
+
+}
+func checkConvertArg(arg string) error {
+	log.Debug("Checking Convert command arg")
+	var err error
+	num, err := strconv.Atoi(arg)
+	if err != nil {
+		return chatboterrors.ErrParamaterIsNotNumber
+	} else if num < 1 {
+		return chatboterrors.ErrParamaterIsToosmallConvert
+	} else if num > 999999999999 {
+		return chatboterrors.ErrParamaterIsTooLargeConvert
+	} else {
+		return nil
 	}
 
 }
@@ -405,8 +451,7 @@ func main() {
 	responseAPIHandler := func(w http.ResponseWriter, req *http.Request) {
 		//log.Debug(req.URL.Path[len(req.URL.Path)-10:])
 		//log.Debug(randomURL)
-
-		update := ChatbotStructs.MessageFromGitHub{}
+		update := chatbotstructs.MessageFromGitHub{}
 		log.Debug("Request from GitHub to responseAPI")
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
@@ -439,7 +484,7 @@ func main() {
 
 			if !update.Message.IsCommand() {
 				log.Debug("Answering Hey by default")
-				msg.Text = "Hey Buddy\nAvailable commands are th following:\n/Convert + (positive whole number as parameter, number< 999 999 999 999) Converting number into words. \n/PrimeFactorization + (positive whole number which is greater than 2, accepted as parameter)"
+				msg.Text = "Hey Buddy\nAvailable commands are the following:\n/Convert + (positive whole number as parameter, number< 999 999 999 999) Converting number into words. \n/PrimeFactorization + (positive whole number which is greater than 2, accepted as parameter)"
 				if _, err := bot.Send(msg); err != nil {
 					log.Panic(err)
 				}
@@ -452,61 +497,43 @@ func main() {
 					reqCounter.WithLabelValues("Convert").Inc()
 					log.Debug("Converting number to text")
 					arg := update.Message.CommandArguments()
-
-					num, err := strconv.Atoi(arg)
-					if err != nil {
-						log.Debug("/Convert command parameter is not number")
-						msg.Text = "Wrong parameter, only positive whole number is accepted as parameter"
-					} else if num > 999999999999 {
-						log.Debug("/Convert command parameter is greater than 999999999999")
-						msg.Text = "Wrong parameter, only number less than 999.999.999.999 is accepted"
-					} else if num == 0 {
-						msg.Text = "Nulla"
-					} else if num < 0 {
-						log.Debug("/Convert command parameter is less than 0")
-						msg.Text = "Wrong parameter, parameter must be greater than 0"
-
+					if err := checkConvertArg(arg); err != nil {
+						log.WithError(err).Fatal()
+						msg.Text = fmt.Sprint(err)
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 					} else {
+						num, _ := strconv.Atoi(arg)
 						convertedNum := convert(num)
 						convertedNumFirst := convertedNum[:1]
 						convertedNumRest := convertedNum[1:]
-						//convertedNumFirst = strings.Title(convertedNumFirst) //cases.Title(language.Hungarian)
 						c := cases.Title(language.Hungarian)
 						convertedNumFirst = c.String(convertedNumFirst)
 						convertedNum = convertedNumFirst + convertedNumRest
-
 						msg.Text = convertedNum
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 					}
-					if _, err := bot.Send(msg); err != nil {
-						log.Panic(err)
-					}
-
 				case "PrimeFactorization":
 					reqCounter.WithLabelValues("PrimeFactorization").Inc()
 					log.Debug("Prime factorization request")
 					arg := update.Message.CommandArguments()
-
-					num, err := strconv.Atoi(arg)
-					if err != nil {
-						log.Debug("/PrimeFactorization command parameter is not number")
-						msg.Text = "Wrong parameter, only positive whole number which is greater than 2, accepted as parameter"
-
-					} else if num < 2 {
-						log.Debug("/PrimeFactorization command parameter is less than 2")
-						msg.Text = "Wrong parameter, parameter must be greater than 2"
-
-					} else if IsPrime(num) {
-						log.Debug("/PrimeFactorization command parameter is a prime")
-						msg.Text = fmt.Sprint(num) + " is a prime"
-
+					if err := checkPrimeFactorizationArg(arg); err != nil {
+						log.WithError(err).Fatal()
+						msg.Text = fmt.Sprint(err)
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 					} else {
+						num, _ := strconv.Atoi(arg)
 						result := primeFactorization(num)
 						msg.Text = "Prime factors: " + result.factorsWithCommas() + "\n" + "Factor tree:" + "\n" + result.factorTree()
+						if _, err := bot.Send(msg); err != nil {
+							log.Panic(err)
+						}
 					}
-					if _, err := bot.Send(msg); err != nil {
-						log.Panic(err)
-					}
-
 				case "GenerateBigPrime":
 					go func() {
 						msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
@@ -520,60 +547,38 @@ func main() {
 						duration := time.Since(start)
 						log.Debug(" PrimeGenerator component response duration in seconds: ", duration.Seconds())
 						respDuration.Observe(duration.Seconds())
-						//respDurationAvg.WithLabelValues("GenerateBigPrime").Set(duration.Seconds())
 						log.Debug("Response arrived from primeGenerator to chat")
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
 					}()
-
-				case "Load": //url paraméterként service name empty parameter check
+				case "Load":
 					reqCounter.WithLabelValues("Load").Inc()
 					args := update.Message.CommandArguments()
 					split := strings.Split(args, ",")
-					if len(split) > 3 {
-						msg.Text = "Too many arguments"
+					if err := checkLoadArgs(args); err != nil {
+						log.WithError(err).Fatal()
+						msg.Text = fmt.Sprint(err)
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
-					} else if len(split) < 3 {
-						msg.Text = "Not enough arguments"
-						if _, err := bot.Send(msg); err != nil {
-							log.Panic(err)
-						}
-
-					} else if checkLoadArgs(split[0]) != "" {
-						msg.Text = checkLoadArgs(split[0])
-						if _, err := bot.Send(msg); err != nil {
-							log.Panic(err)
-						}
-
-					} else if checkLoadArgs(split[1]) != "" {
-						msg.Text = checkLoadArgs(split[1])
-						if _, err := bot.Send(msg); err != nil {
-							log.Panic(err)
-						}
-
 					} else {
 						num, _ := strconv.Atoi(split[0])
-						freq, _ := strconv.Atoi(split[1])
-						URL := split[2]
-						err := loadRequest("http://loadtestingtool-service", URL, num, freq, update.Message.Chat.ID)
+						URL := split[1]
+						err := loadRequest("http://loadtestingtool-service", URL, num, update.Message.Chat.ID)
 						if err != nil {
-							log.Debug("/Load failed, sending error to chat")
+							log.WithError(err).Fatal()
 							msg.Text = fmt.Sprint(err)
 							if _, err := bot.Send(msg); err != nil {
 								log.Panic(err)
 							}
 						}
-
 					}
-
 				case "Deploy_primeGenerator":
 					reqCounter.WithLabelValues("Deploy_primeGenerator").Inc()
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_primeGenerator_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
-						log.Debug("/Deploy failed, sending error to chat")
+						log.WithError(err).Fatal()
 						msg.Text = fmt.Sprint(err)
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
@@ -583,18 +588,17 @@ func main() {
 					reqCounter.WithLabelValues("Deploy_loadTestingTool").Inc()
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_loadTestingTool_deploy.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
-						log.Debug("/Deploy failed, sending error to chat")
+						log.WithError(err).Fatal()
 						msg.Text = fmt.Sprint(err)
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
 					}
-
 				case "Deploy_primeGenerator_debug":
 					reqCounter.WithLabelValues("Deploy_primeGenerator_debug").Inc()
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_primeGenerator_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
-						log.Debug("/Deploy_debug failed, sending error to chat")
+						log.WithError(err).Fatal()
 						msg.Text = fmt.Sprint(err)
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
@@ -604,56 +608,38 @@ func main() {
 					reqCounter.WithLabelValues("Deploy_loadTestingTool_debug").Inc()
 					err := deploy("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_loadTestingTool_deploy_debug.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID))
 					if err != nil {
-						log.Debug("/Deploy_debug failed, sending error to chat")
+						log.WithError(err).Fatal()
 						msg.Text = fmt.Sprint(err)
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
 					}
-
 				case "SetReplicaCount":
 					reqCounter.WithLabelValues("SetReplicaCount").Inc()
 					arg := update.Message.CommandArguments()
-					num, err := strconv.Atoi(arg)
-					if err != nil {
-						log.Debug("/SetReplicaCount command parameter is not positive whole number")
-						msg.Text = "Wrong parameter, parameter is not number"
+					if err := checkSetReplicaCountArg(arg); err != nil {
+						log.WithError(err).Fatal()
+						msg.Text = fmt.Sprint(err)
 						if _, err := bot.Send(msg); err != nil {
 							log.Panic(err)
 						}
-
-					} else if num > 50 {
-						log.Debug("/SetReplicaCount command parameter is greater than 50")
-						msg.Text = "Wrong parameter, parameter is greater 50"
-						if _, err := bot.Send(msg); err != nil {
-							log.Panic(err)
-						}
-
-					} else if num < 1 {
-						log.Debug("/SetReplicaCount command parameter is less than 50")
-						msg.Text = "Wrong parameter, parameter is less than 1"
-						if _, err := bot.Send(msg); err != nil {
-							log.Panic(err)
-						}
-
 					} else {
+						num, _ := strconv.Atoi(arg)
 						url := RandStringBytes(10)
 						randomURL = append(randomURL, url)
 						log.Debug(url)
 						err := setReplicaCount("https://api.github.com/repos/bproforigoss/kemadaxbot/actions/workflows/chatbot_set_replica.yaml/dispatches", pat, fmt.Sprint(update.Message.Chat.ID), fmt.Sprint(num), url)
 						if err != nil {
-							log.Debug("/SetReplicaCount failed, sending error to chat")
+							log.WithError(err).Fatal()
 							msg.Text = fmt.Sprint(err)
 							if _, err := bot.Send(msg); err != nil {
 								log.Panic(err)
 							}
 						}
-
 					}
-
 				case "Ping":
+					log.Debug("Request for Ping command")
 					reqCounter.WithLabelValues("Ping").Inc()
-					log.Debug("Responding pong, to /ping command")
 					msg.Text = "pong"
 					if _, err := bot.Send(msg); err != nil {
 						log.Panic(err)

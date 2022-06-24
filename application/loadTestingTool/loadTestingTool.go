@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	"src/github.com/bproforigoss/kemadaxbot/Structs/ChatbotStructs"
+	"github.com/bproforigoss/kemadaxbot/chatbotstructs"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -45,15 +45,6 @@ type TelegramBotRequestMessageChat struct {
 	Type string `json:"type"`
 }
 
-/*type RequestBody struct { //Ez veszélyes ---->külön package
-	URL              string `json:"url"`
-	RequestNumber    int    `json:"number"`
-	RequestFrequency int    `json:"frequency"`
-	RequestChatId    int    `json:"chat_id"`
-}*/
-
-/*{"update_id":1,"message":{"message_id":1,"date":1649352456,"chat":{"id":2006716105,"type":"private"},
-"entities":[{"type":"bot_command","length":17}],"text":"/GenerateBigPrime"}*/
 func load(URL string, ChatID int) error {
 	client := &http.Client{}
 	reqBody := TelegramBotRequest{
@@ -116,19 +107,20 @@ func main() {
 
 	loadTestingReqHandler := func(w http.ResponseWriter, req *http.Request) {
 		decoder := json.NewDecoder(req.Body)
-		var reqBody ChatbotStructs.RequestToLoad
+		var reqBody chatbotstructs.RequestToLoad
 		err := decoder.Decode(&reqBody)
 		if err != nil {
 			log.WithError(err).Warn("Unmarshal JSON failed at loadTestingHandler")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		ticker := time.NewTicker(time.Duration(reqBody.RequestFrequency) * time.Second)
+		frequency := 60 / reqBody.Number
+		ticker := time.NewTicker(time.Duration(frequency) * time.Second)
 		defer ticker.Stop()
-		reqNum := reqBody.RequestNumber
+		reqNum := reqBody.Number
 		i := 0
 		for range ticker.C {
-			err := load(reqBody.URL, reqBody.RequestChatId)
+			err := load(reqBody.Url, int(reqBody.ChatID))
 			if err != nil {
 				log.WithError(err).Warn("loadTestingReqHandler calling load func() failed")
 			}
